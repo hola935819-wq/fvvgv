@@ -2,6 +2,8 @@ package dev.voltliz.client.module;
 
 import dev.voltliz.client.module.client.ClickGuiModule;
 import dev.voltliz.client.module.combat.AimAssistModule;
+import dev.voltliz.client.module.combat.AutoCrystalModule;
+import dev.voltliz.client.module.combat.AutoTotemModule;
 import dev.voltliz.client.module.combat.TriggerBotModule;
 import dev.voltliz.client.module.hud.ArmorStatusModule;
 import dev.voltliz.client.module.hud.ClockModule;
@@ -35,6 +37,8 @@ public final class ModuleManager {
 	public ModuleManager() {
 		add(new TriggerBotModule());
 		add(new AimAssistModule());
+		add(new AutoCrystalModule());
+		add(new AutoTotemModule());
 
 		add(new Esp2DModule());
 		add(new Esp3DModule());

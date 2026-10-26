@@ -7,6 +7,8 @@ import dev.voltliz.client.gui.HudEditorScreen;
 import dev.voltliz.client.module.Category;
 import dev.voltliz.client.module.Module;
 import dev.voltliz.client.module.combat.AimAssistModule;
+import dev.voltliz.client.module.combat.AutoCrystalModule;
+import dev.voltliz.client.module.combat.AutoTotemModule;
 import dev.voltliz.client.module.combat.TriggerBotModule;
 import dev.voltliz.client.module.render.Esp2DModule;
 import dev.voltliz.client.module.render.Esp3DModule;
@@ -14,10 +16,17 @@ import dev.voltliz.client.setting.Setting;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
+import net.minecraft.world.item.Items;
 import org.lwjgl.glfw.GLFW;
 
 /** Opens the Click GUI and HUD editor in a real world and takes screenshots of each. */
@@ -140,7 +149,82 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			});
 			context.waitTicks(5);
 			context.takeScreenshot("voltliz-esp-3d");
+
+			// AutoCrystal: stand on an obsidian floor with crystals in the hotbar, hold left click and check
+			// that crystals keep getting placed and broken. Resistance V and full explosion knockback
+			// resistance keep the player alive and in place.
+			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(Esp3DModule.class).setEnabled(false));
+			singleplayer.getServer().runCommand("kill @e[type=husk]");
+			singleplayer.getServer().runCommand("gamemode survival @a");
+			singleplayer.getServer().runCommand("effect give @a resistance infinite 4 true");
+			singleplayer.getServer().runCommand("execute as @a run attribute @s minecraft:explosion_knockback_resistance base set 1");
+			singleplayer.getServer().runCommand("execute at @a run fill ~-4 ~-1 ~-4 ~4 ~-1 ~6 obsidian");
+			singleplayer.getServer().runCommand("execute at @a run fill ~-4 ~ ~-4 ~4 ~3 ~6 air");
+			singleplayer.getServer().runCommand("item replace entity @a hotbar.0 with diamond_sword");
+			singleplayer.getServer().runCommand("item replace entity @a hotbar.2 with end_crystal 64");
+			singleplayer.getServer().runCommand("execute as @a at @s run tp @s ~ ~ ~ 0 50");
+			context.waitTicks(10);
+			context.runOnClient(client -> {
+				client.player.getInventory().setSelectedSlot(0);
+				VoltlizClient.get().getModuleManager().get(AutoCrystalModule.class).setEnabled(true);
+			});
+			context.waitTick();
+
+			Set<Integer> crystalsSeen = new HashSet<>();
+			context.getInput().holdMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT);
+			for (int tick = 0; tick < 60; tick++) {
+				context.waitTick();
+				crystalsSeen.addAll(context.computeOnClient(VoltlizClientGameTest::crystalIds));
+				if (tick == 30) {
+					context.takeScreenshot("voltliz-autocrystal");
+				}
+			}
+			context.getInput().releaseMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT);
+			context.waitTicks(10);
+			int selectedSlot = context.computeOnClient(client -> client.player.getInventory().getSelectedSlot());
+			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(AutoCrystalModule.class).setEnabled(false));
+			// A new crystal can only go down once the last one is gone, so several distinct crystals
+			// means it both placed and broke them.
+			if (crystalsSeen.size() < 3) {
+				throw new AssertionError("AutoCrystal only produced " + crystalsSeen.size() + " crystals in 3 seconds");
+			}
+			if (selectedSlot != 0) {
+				throw new AssertionError("AutoCrystal did not switch back to the original slot (now " + selectedSlot + ")");
+			}
+
+			// AutoTotem: a totem in the main inventory and an empty offhand. It should open the inventory,
+			// swap the totem into the offhand and close the inventory again.
+			singleplayer.getServer().runCommand("item replace entity @a weapon.offhand with air");
+			singleplayer.getServer().runCommand("item replace entity @a inventory.5 with totem_of_undying");
+			context.waitTicks(5);
+			context.runOnClient(client -> {
+				AutoTotemModule autoTotem = VoltlizClient.get().getModuleManager().get(AutoTotemModule.class);
+				setSetting(autoTotem, "Mode", "Always");
+				autoTotem.setEnabled(true);
+			});
+			context.waitTicks(3);
+			context.takeScreenshot("voltliz-autototem-open");
+			context.waitTicks(30);
+			boolean totemInOffhand = context.computeOnClient(client -> client.player.getOffhandItem().is(Items.TOTEM_OF_UNDYING));
+			boolean screenClosed = context.computeOnClient(client -> client.screen == null);
+			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(AutoTotemModule.class).setEnabled(false));
+			if (!totemInOffhand) {
+				throw new AssertionError("AutoTotem did not move the totem to the offhand");
+			}
+			if (!screenClosed) {
+				throw new AssertionError("AutoTotem left the inventory open");
+			}
 		}
+	}
+
+	private static List<Integer> crystalIds(Minecraft client) {
+		List<Integer> ids = new ArrayList<>();
+		for (Entity entity : client.level.entitiesForRendering()) {
+			if (entity instanceof EndCrystal) {
+				ids.add(entity.getId());
+			}
+		}
+		return ids;
 	}
 
 	@SuppressWarnings("unchecked")
