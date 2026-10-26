@@ -2,11 +2,12 @@ package dev.voltliz.client.module.hud;
 
 import dev.voltliz.client.module.HudModule;
 import dev.voltliz.client.setting.BooleanSetting;
+import dev.voltliz.client.render.Render2D;
+import dev.voltliz.client.render.VText;
 import dev.voltliz.client.util.RenderUtil;
 import dev.voltliz.client.util.Theme;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
@@ -24,14 +25,13 @@ public class PotionEffectsModule extends HudModule {
 	@Override
 	protected void renderContent(GuiGraphics graphics) {
 		LocalPlayer player = mc().player;
-		Font font = mc().font;
 		List<MobEffectInstance> effects = player != null ? new ArrayList<>(player.getActiveEffects()) : List.of();
 
 		if (effects.isEmpty()) {
 			width = 70;
 			height = 12;
 			if (isEditing()) {
-				graphics.drawString(font, "Potion Effects", 2, 2, Theme.TEXT_DIM, true);
+				VText.draw(graphics, "Potion Effects", 2, 2, Theme.TEXT_DIM);
 			}
 			return;
 		}
@@ -48,13 +48,13 @@ public class PotionEffectsModule extends HudModule {
 			String time = effect.isInfiniteDuration() ? "**:**" : formatTicks(effect.getDuration());
 			names.add(name);
 			times.add(time);
-			nameWidth = Math.max(nameWidth, font.width(name));
-			timeWidth = Math.max(timeWidth, font.width(time));
+			nameWidth = Math.max(nameWidth, VText.width(name, true));
+			timeWidth = Math.max(timeWidth, VText.width(time));
 		}
 
-		int padding = background.get() ? 3 : 0;
-		int lineHeight = font.lineHeight + 2;
-		width = nameWidth + 6 + timeWidth + padding * 2;
+		int padding = background.get() ? 5 : 0;
+		int lineHeight = VText.HEIGHT + 3;
+		width = 8 + nameWidth + 10 + timeWidth + padding * 2;
 		height = effects.size() * lineHeight - 2 + padding * 2;
 
 		if (background.get()) {
@@ -63,9 +63,10 @@ public class PotionEffectsModule extends HudModule {
 
 		for (int i = 0; i < effects.size(); i++) {
 			int y = padding + i * lineHeight;
-			int color = effectColors.get() ? 0xFF000000 | effects.get(i).getEffect().value().getColor() : Theme.TEXT;
-			graphics.drawString(font, names.get(i), padding, y, color, true);
-			graphics.drawString(font, times.get(i), width - padding - font.width(times.get(i)), y, Theme.TEXT_DIM, true);
+			int color = effectColors.get() ? 0xFF000000 | effects.get(i).getEffect().value().getColor() : Theme.accent();
+			Render2D.circle(graphics, padding + 2.5f, y + VText.HEIGHT / 2f, 2.5f, color);
+			VText.draw(graphics, names.get(i), padding + 8, y, Theme.TEXT, true);
+			VText.draw(graphics, times.get(i), width - padding - VText.width(times.get(i)), y, Theme.TEXT_DIM);
 		}
 	}
 

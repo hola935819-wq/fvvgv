@@ -11,14 +11,13 @@ public class ModeComponent extends SettingComponent<ModeSetting> {
 
 	@Override
 	public int getHeight() {
-		return 13;
+		return 17;
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY) {
-		drawBackground(graphics);
-		drawName(graphics, setting.getName(), y + 3);
-		drawRight(graphics, setting.get(), y + 3, Theme.accent());
+		drawName(graphics, setting.getName(), y + 4);
+		drawPill(graphics, setting.get(), y + 1, Theme.accent());
 	}
 
 	@Override

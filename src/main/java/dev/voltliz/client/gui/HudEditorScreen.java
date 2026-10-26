@@ -2,8 +2,9 @@ package dev.voltliz.client.gui;
 
 import dev.voltliz.client.VoltlizClient;
 import dev.voltliz.client.module.HudModule;
+import dev.voltliz.client.render.Render2D;
+import dev.voltliz.client.render.VText;
 import dev.voltliz.client.util.ColorUtil;
-import dev.voltliz.client.util.RenderUtil;
 import dev.voltliz.client.util.Theme;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,42 +34,59 @@ public class HudEditorScreen extends Screen {
 
 	@Override
 	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		graphics.fill(0, 0, width, height, 0x30000000);
+		graphics.fill(0, 0, width, height, 0x40000000);
+		// A faint grid to line elements up against.
+		for (int x = 0; x < width; x += 20) {
+			graphics.fill(x, 0, x + 1, height, 0x0AFFFFFF);
+		}
+		for (int y = 0; y < height; y += 20) {
+			graphics.fill(0, y, width, y + 1, 0x0AFFFFFF);
+		}
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		int accent = Theme.accent();
 		if (dragging != null) {
 			drag(mouseX, mouseY);
 			if (snappedX) {
-				graphics.fill(width / 2, 0, width / 2 + 1, height, ColorUtil.withAlpha(Theme.accent(), 0x80));
+				graphics.fill(width / 2, 0, width / 2 + 1, height, ColorUtil.withAlpha(accent, 0x90));
 			}
 			if (snappedY) {
-				graphics.fill(0, height / 2, width, height / 2 + 1, ColorUtil.withAlpha(Theme.accent(), 0x80));
+				graphics.fill(0, height / 2, width, height / 2 + 1, ColorUtil.withAlpha(accent, 0x90));
 			}
 		}
 
 		HudModule hovered = hoveredModule(mouseX, mouseY);
 		for (HudModule module : modules()) {
-			int x = Math.round(module.getX());
-			int y = Math.round(module.getY());
-			int w = Math.round(module.getScaledWidth());
-			int h = Math.round(module.getScaledHeight());
+			float x = module.getX();
+			float y = module.getY();
+			float w = module.getScaledWidth();
+			float h = module.getScaledHeight();
 			boolean active = module == dragging || (dragging == null && module == hovered);
 
-			RenderUtil.outline(graphics, x - 1, y - 1, w + 2, h + 2, active ? Theme.accent() : 0x60FFFFFF);
+			int border = active ? accent : 0x50FFFFFF;
+			Render2D.roundedOutline(graphics, x - 2, y - 2, w + 4, h + 4, 5, border);
 			if (active) {
-				graphics.fill(x, y, x + w, y + h, ColorUtil.withAlpha(Theme.accent(), 0x25));
-				String label = module.getName() + " (" + Math.round(module.getScale() * 100) + "%)";
-				int labelY = y > 12 ? y - 11 : y + h + 3;
-				graphics.drawString(font, label, x, labelY, Theme.TEXT, true);
+				Render2D.roundedRect(graphics, x - 1, y - 1, w + 2, h + 2, 4, ColorUtil.withAlpha(accent, 0x22));
+				String label = module.getName() + "  " + Math.round(module.getScale() * 100) + "%";
+				int labelWidth = VText.width(label, true) + 10;
+				float labelY = y > 18 ? y - 17 : y + h + 4;
+				Render2D.roundedRect(graphics, x - 2, labelY, labelWidth, 13, 4, accent);
+				VText.draw(graphics, label, x + 3, labelY + 2, 0xFFFFFFFF, true);
 			}
 		}
 
-		String[] lines = {"HUD Editor", "Drag to move  |  Scroll to resize  |  Right click: reset size  |  ESC: back"};
-		for (int i = 0; i < lines.length; i++) {
-			graphics.drawCenteredString(font, lines[i], width / 2, height / 2 - 10 + i * 12, i == 0 ? Theme.accent() : Theme.TEXT_DIM);
-		}
+		// Help card at the bottom center.
+		String title = "HUD Editor";
+		String help = "Drag to move  ·  Scroll to resize  ·  Right click to reset  ·  Esc to go back";
+		int cardWidth = VText.width(help) + 24;
+		int cardX = (width - cardWidth) / 2;
+		int cardY = height - 46;
+		Render2D.shadow(graphics, cardX, cardY, cardWidth, 32, 8, 6, 0x60);
+		Render2D.roundedRect(graphics, cardX, cardY, cardWidth, 32, 8, Theme.WINDOW);
+		VText.drawCentered(graphics, title, width / 2f, cardY + 6, accent, true);
+		VText.drawCentered(graphics, help, width / 2f, cardY + 18, Theme.TEXT_DIM, false);
 	}
 
 	private void drag(int mouseX, int mouseY) {

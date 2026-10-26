@@ -40,17 +40,8 @@ public final class ConfigManager {
 				}
 			}
 
-			if (root.has("panels")) {
-				JsonObject panels = root.getAsJsonObject("panels");
-				for (Category category : Category.values()) {
-					if (panels.has(category.name())) {
-						JsonObject panel = panels.getAsJsonObject(category.name());
-						GuiState.PanelState state = GuiState.get(category);
-						state.x = panel.get("x").getAsInt();
-						state.y = panel.get("y").getAsInt();
-						state.open = panel.get("open").getAsBoolean();
-					}
-				}
+			if (root.has("category")) {
+				GuiState.selectedCategory = Category.valueOf(root.get("category").getAsString());
 			}
 		} catch (Exception e) {
 			VoltlizClient.LOGGER.error("Could not read config {}", file, e);
@@ -104,16 +95,7 @@ public final class ConfigManager {
 		}
 		root.add("modules", moduleData);
 
-		JsonObject panels = new JsonObject();
-		for (Category category : Category.values()) {
-			GuiState.PanelState state = GuiState.get(category);
-			JsonObject panel = new JsonObject();
-			panel.addProperty("x", state.x);
-			panel.addProperty("y", state.y);
-			panel.addProperty("open", state.open);
-			panels.add(category.name(), panel);
-		}
-		root.add("panels", panels);
+		root.addProperty("category", GuiState.selectedCategory.name());
 
 		try {
 			Files.createDirectories(file.getParent());

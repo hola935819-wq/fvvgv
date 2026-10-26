@@ -1,0 +1,11 @@
+{
+	"providers": [
+		{
+			"type": "ttf",
+			"file": "voltliz:poppins-semibold.ttf",
+			"size": 8.5,
+			"oversample": 6.0,
+			"shift": [0.0, 0.5]
+		}
+	]
+}

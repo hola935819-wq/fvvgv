@@ -1,38 +1,44 @@
 package dev.voltliz.client.gui.component;
 
+import dev.voltliz.client.render.Render2D;
+import dev.voltliz.client.render.VText;
 import dev.voltliz.client.setting.NumberSetting;
+import dev.voltliz.client.util.Animator;
 import dev.voltliz.client.util.Theme;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class NumberComponent extends SettingComponent<NumberSetting> {
+	private final Animator animator;
 	private boolean dragging;
+	private float shown;
 
-	public NumberComponent(NumberSetting setting) {
+	public NumberComponent(NumberSetting setting, Animator animator) {
 		super(setting);
+		this.animator = animator;
+		this.shown = (float) setting.getProgress();
 	}
 
 	@Override
 	public int getHeight() {
-		return 19;
+		return 24;
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY) {
-		int barX = x + PADDING;
-		int barWidth = width - PADDING * 2;
 		if (dragging) {
-			setting.setProgress((mouseX - barX) / (double) barWidth);
+			setting.setProgress((mouseX - x) / (double) width);
 		}
+		shown = animator.approach(shown, (float) setting.getProgress(), 22);
 
-		drawBackground(graphics);
 		drawName(graphics, setting.getName(), y + 3);
-		drawRight(graphics, setting.format(), y + 3, Theme.TEXT);
+		String value = setting.format();
+		VText.draw(graphics, value, x + width - VText.width(value), y + 3, Theme.TEXT);
 
-		int barY = y + 14;
-		int filled = (int) Math.round(barWidth * setting.getProgress());
-		graphics.fill(barX, barY, barX + barWidth, barY + 2, 0xFF2A2A33);
-		graphics.fill(barX, barY, barX + filled, barY + 2, Theme.accent());
-		graphics.fill(barX + filled - 1, barY - 1, barX + filled + 1, barY + 3, 0xFFFFFFFF);
+		int trackY = y + 16;
+		float filled = width * shown;
+		Render2D.roundedRect(graphics, x, trackY, width, 3, 1.5f, Theme.FIELD);
+		Render2D.roundedRect(graphics, x, trackY, Math.max(3, filled), 3, 1.5f, Theme.accent());
+		Render2D.circle(graphics, x + filled, trackY + 1.5f, 3.5f, 0xFFFFFFFF);
 	}
 
 	@Override

@@ -1,8 +1,6 @@
 package dev.voltliz.client.gui.component;
 
 import dev.voltliz.client.util.RenderUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class GuiComponent {
@@ -27,9 +25,5 @@ public abstract class GuiComponent {
 
 	public boolean isHovered(double mouseX, double mouseY) {
 		return RenderUtil.isInside(mouseX, mouseY, x, y, width, getHeight());
-	}
-
-	protected static Font font() {
-		return Minecraft.getInstance().font;
 	}
 }

@@ -21,8 +21,16 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("voltliz-clickgui");
 
-			// Right click the first module of the HUD panel to expand its settings.
-			context.getInput().setCursorPos(40 * guiScale(context), 42 * guiScale(context));
+			// Right click the first module card to expand its settings.
+			double[] card = context.computeOnClient(client -> {
+				int width = client.getWindow().getGuiScaledWidth();
+				int height = client.getWindow().getGuiScaledHeight();
+				int windowWidth = Math.min(440, width - 24);
+				int windowHeight = Math.min(280, height - 24);
+				double scale = client.getWindow().getGuiScale();
+				return new double[] {((width - windowWidth) / 2 + 140) * scale, ((height - windowHeight) / 2 + 52) * scale};
+			});
+			context.getInput().setCursorPos(card[0], card[1]);
 			context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_RIGHT);
 			context.waitTicks(10);
 			context.takeScreenshot("voltliz-clickgui-settings");
@@ -35,9 +43,5 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			context.getInput().holdKeyFor(options -> options.keyUp, 5);
 			context.takeScreenshot("voltliz-keystrokes");
 		}
-	}
-
-	private static double guiScale(ClientGameTestContext context) {
-		return context.computeOnClient(client -> (double) client.getWindow().getGuiScale());
 	}
 }

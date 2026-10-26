@@ -2,12 +2,13 @@ package dev.voltliz.client.gui.component;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.voltliz.client.module.Module;
+import dev.voltliz.client.setting.Setting;
 import dev.voltliz.client.util.Theme;
 import net.minecraft.client.gui.GuiGraphics;
 import org.lwjgl.glfw.GLFW;
 
 /** Module keybind. Click, then press a key; Escape or Backspace clears it. */
-public class BindComponent extends SettingComponent<dev.voltliz.client.setting.Setting<?>> {
+public class BindComponent extends SettingComponent<Setting<?>> {
 	private final Module module;
 	private boolean listening;
 
@@ -18,23 +19,22 @@ public class BindComponent extends SettingComponent<dev.voltliz.client.setting.S
 
 	@Override
 	public int getHeight() {
-		return 13;
+		return 17;
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY) {
-		drawBackground(graphics);
-		drawName(graphics, "Bind", y + 3);
+		drawName(graphics, "Keybind", y + 4);
 
 		String text;
 		if (listening) {
-			text = "...";
+			text = "Press a key...";
 		} else if (module.getKey() < GLFW.GLFW_KEY_SPACE) {
 			text = "None";
 		} else {
 			text = InputConstants.Type.KEYSYM.getOrCreate(module.getKey()).getDisplayName().getString();
 		}
-		drawRight(graphics, text, y + 3, listening ? Theme.accent() : Theme.TEXT);
+		drawPill(graphics, text, y + 1, listening ? Theme.accent() : Theme.TEXT);
 	}
 
 	@Override

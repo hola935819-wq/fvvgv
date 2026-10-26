@@ -1,8 +1,9 @@
 package dev.voltliz.client.gui.component;
 
+import dev.voltliz.client.render.Render2D;
+import dev.voltliz.client.render.VText;
 import dev.voltliz.client.setting.ColorSetting;
 import dev.voltliz.client.util.ColorUtil;
-import dev.voltliz.client.util.RenderUtil;
 import dev.voltliz.client.util.Theme;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -16,41 +17,41 @@ public class ColorComponent extends SettingComponent<ColorSetting> {
 
 	@Override
 	public int getHeight() {
-		return 21;
+		return 26;
 	}
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY) {
-		int barX = x + PADDING;
-		int barWidth = width - PADDING * 2;
 		if (dragging) {
 			setting.setRainbow(false);
-			setting.setHue(Math.max(0, Math.min(0.999f, (mouseX - barX) / (float) barWidth)));
+			setting.setHue(Math.max(0, Math.min(0.999f, (mouseX - x) / (float) width)));
 		}
 
-		drawBackground(graphics);
 		drawName(graphics, setting.getName(), y + 3);
-
-		int previewX = x + width - PADDING - 8;
-		RenderUtil.outline(graphics, previewX - 1, y + 2, 10, 10, 0xFF3A3A44);
-		graphics.fill(previewX, y + 3, previewX + 8, y + 11, setting.getColor());
+		Render2D.circle(graphics, x + width - 5, y + 7, 5, 0xFF2E3344);
+		Render2D.circle(graphics, x + width - 5, y + 7, 4, setting.getColor());
 		if (setting.isRainbow()) {
-			graphics.drawString(font(), "RGB", previewX - 4 - font().width("RGB"), y + 3, setting.getColor(), false);
+			VText.draw(graphics, "Rainbow", x + width - 14 - VText.width("Rainbow"), y + 3, setting.getColor());
 		}
 
-		int barY = y + 14;
-		for (int i = 0; i < barWidth; i++) {
-			graphics.fill(barX + i, barY, barX + i + 1, barY + 4, ColorUtil.hsb(i / (float) barWidth, 1f, 1f, 255));
+		// Hue bar: rounded ends plus one-pixel columns between them.
+		int barY = y + 17;
+		int barHeight = 5;
+		Render2D.roundedRect(graphics, x, barY, barHeight, barHeight, 2.5f, ColorUtil.hsb(0, 1, 1, 255));
+		Render2D.roundedRect(graphics, x + width - barHeight, barY, barHeight, barHeight, 2.5f, ColorUtil.hsb(0.999f, 1, 1, 255));
+		for (int i = 2; i < width - 2; i++) {
+			graphics.fill(x + i, barY, x + i + 1, barY + barHeight, ColorUtil.hsb(i / (float) width, 0.85f, 1f, 255));
 		}
 		if (!setting.isRainbow()) {
-			int markerX = barX + Math.round(setting.getHue() * barWidth);
-			graphics.fill(markerX - 1, barY - 1, markerX + 1, barY + 5, Theme.TEXT);
+			float markerX = x + setting.getHue() * width;
+			Render2D.circle(graphics, markerX, barY + barHeight / 2f, 4, 0xFFFFFFFF);
+			Render2D.circle(graphics, markerX, barY + barHeight / 2f, 2.5f, setting.getColor());
 		}
 	}
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (button == 0 && mouseY >= y + 12) {
+		if (button == 0 && mouseY >= y + 13) {
 			dragging = true;
 			return true;
 		}

@@ -6,13 +6,15 @@ import dev.voltliz.client.module.client.ClickGuiModule;
 public final class Theme {
 	public static final int DEFAULT_ACCENT = 0xFF00B4FF;
 
-	public static final int PANEL = 0xF00E0E12;
-	public static final int ROW = 0xE016161C;
-	public static final int ROW_HOVER = 0xE0202028;
-	public static final int SETTING = 0xE0111116;
-	public static final int TEXT = 0xFFFFFFFF;
-	public static final int TEXT_DIM = 0xFFA0A0AC;
-	public static final int HUD_BACKGROUND = 0x80000000;
+	public static final int WINDOW = 0xF20E1016;
+	public static final int SIDEBAR = 0xFF13161E;
+	public static final int CARD = 0xFF191C26;
+	public static final int CARD_HOVER = 0xFF1F2330;
+	public static final int FIELD = 0xFF262A38;
+	public static final int SEPARATOR = 0x14FFFFFF;
+	public static final int TEXT = 0xFFF2F4F8;
+	public static final int TEXT_DIM = 0xFF8A90A2;
+	public static final int HUD_BACKGROUND = 0xB00E1016;
 
 	private Theme() {
 	}
