@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+//? if >=1.21.9
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
@@ -14,11 +15,21 @@ import net.minecraft.resources.Identifier;
 public final class VText {
 	public static final int HEIGHT = 9;
 
-	private static final Style REGULAR = Style.EMPTY.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath(VoltlizClient.MOD_ID, "regular")));
-	private static final Style BOLD = Style.EMPTY.withFont(new FontDescription.Resource(Identifier.fromNamespaceAndPath(VoltlizClient.MOD_ID, "bold")));
+	private static final Style REGULAR = Style.EMPTY.withFont(font("regular"));
+	private static final Style BOLD = Style.EMPTY.withFont(font("bold"));
 
 	private VText() {
 	}
+
+	//? if >=1.21.9 {
+	private static FontDescription font(String name) {
+		return new FontDescription.Resource(Identifier.fromNamespaceAndPath(VoltlizClient.MOD_ID, name));
+	}
+	//?} else {
+	/*private static Identifier font(String name) {
+		return Identifier.fromNamespaceAndPath(VoltlizClient.MOD_ID, name);
+	}
+	*///?}
 
 	public static Component of(String text, boolean bold) {
 		return Component.literal(text).withStyle(bold ? BOLD : REGULAR);

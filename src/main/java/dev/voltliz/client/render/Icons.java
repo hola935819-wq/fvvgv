@@ -10,10 +10,33 @@ public final class Icons {
 
 	public static void category(GuiGraphics graphics, Category category, float x, float y, float size, int color) {
 		switch (category) {
+			case COMBAT -> crosshair(graphics, x, y, size, color);
+			case RENDER -> eye(graphics, x, y, size, color);
 			case HUD -> layout(graphics, x, y, size, color);
 			case PLAYER -> player(graphics, x, y, size, color);
 			case CLIENT -> sliders(graphics, x, y, size, color);
 		}
+	}
+
+	/** A ring with a center dot and four ticks, the combat icon. */
+	public static void crosshair(GuiGraphics graphics, float x, float y, float size, int color) {
+		float ring = size * 0.7f;
+		float offset = (size - ring) / 2;
+		float tick = Math.max(1, size * 0.13f);
+		float length = size * 0.26f;
+		Render2D.roundedOutline(graphics, x + offset, y + offset, ring, ring, ring / 2, color);
+		Render2D.circle(graphics, x + size / 2, y + size / 2, Math.max(0.8f, size * 0.09f), color);
+		Render2D.roundedRect(graphics, x + (size - tick) / 2, y, tick, length, tick / 2, color);
+		Render2D.roundedRect(graphics, x + (size - tick) / 2, y + size - length, tick, length, tick / 2, color);
+		Render2D.roundedRect(graphics, x, y + (size - tick) / 2, length, tick, tick / 2, color);
+		Render2D.roundedRect(graphics, x + size - length, y + (size - tick) / 2, length, tick, tick / 2, color);
+	}
+
+	/** An eye: a flat ring with a pupil, the render icon. */
+	public static void eye(GuiGraphics graphics, float x, float y, float size, int color) {
+		float height = size * 0.62f;
+		Render2D.roundedOutline(graphics, x, y + (size - height) / 2, size, height, height / 2, color);
+		Render2D.circle(graphics, x + size / 2, y + size / 2, size * 0.2f, color);
 	}
 
 	/** Four tiles, the HUD icon. */

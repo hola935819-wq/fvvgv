@@ -1,6 +1,8 @@
 package dev.voltliz.client.module;
 
 import dev.voltliz.client.module.client.ClickGuiModule;
+import dev.voltliz.client.module.combat.AimAssistModule;
+import dev.voltliz.client.module.combat.TriggerBotModule;
 import dev.voltliz.client.module.hud.ArmorStatusModule;
 import dev.voltliz.client.module.hud.ClockModule;
 import dev.voltliz.client.module.hud.CoordinatesModule;
@@ -12,8 +14,11 @@ import dev.voltliz.client.module.hud.ModuleListModule;
 import dev.voltliz.client.module.hud.PingModule;
 import dev.voltliz.client.module.hud.PotionEffectsModule;
 import dev.voltliz.client.module.hud.ServerAddressModule;
+import dev.voltliz.client.module.hud.TargetHudModule;
 import dev.voltliz.client.module.hud.WatermarkModule;
 import dev.voltliz.client.module.player.ToggleSprintModule;
+import dev.voltliz.client.module.render.Esp2DModule;
+import dev.voltliz.client.module.render.Esp3DModule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,6 +33,12 @@ public final class ModuleManager {
 	private Set<Integer> heldKeys = new HashSet<>();
 
 	public ModuleManager() {
+		add(new TriggerBotModule());
+		add(new AimAssistModule());
+
+		add(new Esp2DModule());
+		add(new Esp3DModule());
+
 		add(new WatermarkModule());
 		add(new FpsModule());
 		add(new CpsModule());
@@ -37,6 +48,7 @@ public final class ModuleManager {
 		add(new ServerAddressModule());
 		add(new ClockModule());
 		add(new KeystrokesModule());
+		add(new TargetHudModule());
 		add(new ArmorStatusModule());
 		add(new PotionEffectsModule());
 		add(new ModuleListModule());
@@ -53,6 +65,22 @@ public final class ModuleManager {
 		}
 	}
 
+	public void onPreTick(Minecraft client) {
+		for (Module module : modules) {
+			if (module.isEnabled()) {
+				module.onPreTick(client);
+			}
+		}
+	}
+
+	public void onFrame(Minecraft client) {
+		for (Module module : modules) {
+			if (module.isEnabled()) {
+				module.onFrame(client);
+			}
+		}
+	}
+
 	public void onTick(Minecraft client) {
 		handleKeybinds(client);
 
@@ -64,7 +92,11 @@ public final class ModuleManager {
 	}
 
 	private void handleKeybinds(Minecraft client) {
+		//? if >=1.21.9 {
 		long window = client.getWindow().handle();
+		//?} else {
+		/*long window = client.getWindow().getWindow();
+		*///?}
 		Set<Integer> down = new HashSet<>();
 
 		for (Module module : modules) {
@@ -89,6 +121,11 @@ public final class ModuleManager {
 
 	public List<Module> getModules() {
 		return Collections.unmodifiableList(modules);
+	}
+
+	/** Modules that draw world overlays (ESP) under the HUD. */
+	public List<Module> getOverlayModules() {
+		return modules.stream().filter(Overlay.class::isInstance).toList();
 	}
 
 	public List<HudModule> getHudModules() {

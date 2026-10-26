@@ -53,6 +53,15 @@ public abstract class Module {
 	protected void onDisable() {
 	}
 
+	/** Called at the start of each client tick, before vanilla handles input. */
+	public void onPreTick(Minecraft client) {
+	}
+
+	/** Called once per rendered frame, before the world is drawn. */
+	public void onFrame(Minecraft client) {
+	}
+
+	/** Called at the end of each client tick. */
 	public void onTick(Minecraft client) {
 	}
 

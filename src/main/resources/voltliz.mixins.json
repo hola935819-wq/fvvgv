@@ -3,6 +3,8 @@
 	"package": "dev.voltliz.client.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
+		"GameRendererMixin",
+		"LevelRendererMixin",
 		"MouseHandlerMixin"
 	],
 	"injectors": {

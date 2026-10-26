@@ -55,6 +55,24 @@ public final class Render2D {
 		graphics.fill(Math.round(x), Math.round(y), Math.round(x + width), Math.round(y + height), color);
 	}
 
+	/** A straight line of the given thickness, drawn as a rotated rectangle so it keeps sub-pixel precision. */
+	public static void line(GuiGraphics graphics, float x1, float y1, float x2, float y2, float thickness, int color) {
+		color = fade(color);
+		float dx = x2 - x1;
+		float dy = y2 - y1;
+		float length = (float) Math.sqrt(dx * dx + dy * dy);
+		if (length < 0.01f || (color >>> 24) == 0) {
+			return;
+		}
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(x1, y1);
+		graphics.pose().rotate((float) Math.atan2(dy, dx));
+		graphics.pose().translate(0, -thickness / 2);
+		graphics.pose().scale(length, thickness);
+		graphics.fill(0, 0, 1, 1, color);
+		graphics.pose().popMatrix();
+	}
+
 	public static void gradientRect(GuiGraphics graphics, float x, float y, float width, float height, int top, int bottom) {
 		graphics.fillGradient(Math.round(x), Math.round(y), Math.round(x + width), Math.round(y + height), fade(top), fade(bottom));
 	}
