@@ -6,6 +6,15 @@ repositories {
 }
 
 loom {
+	runs {
+		configureEach {
+			if (name == "clientGameTest") {
+				// Fabric API runs its own client game tests in CI with the network synchronizer off.
+				vmArg "-Dfabric.client.gametest.disableNetworkSynchronizer=true"
+			}
+		}
+	}
+
 	mods {
 		"voltliz" {
 			sourceSet sourceSets.main
