@@ -25,14 +25,13 @@ jobs:
         with:
           name: Voltliz-Client
           path: build/libs/
-      - name: dump minecraft signatures (temporary)
-        if: always()
-        continue-on-error: true
+      - name: run client game test
         run: |
-          for jar in $(find ~/.gradle/caches/fabric-loom .gradle/loom-cache -name '*.jar' 2>/dev/null | grep -i minecraft | grep -v sources); do
-            if unzip -l "$jar" | grep -q 'net/minecraft/client/MouseHandler.class'; then
-              echo "JAR: $jar"
-              javap -p -cp "$jar" net.minecraft.client.MouseHandler net.minecraft.client.input.MouseButtonEvent net.minecraft.client.input.MouseButtonInfo net.minecraft.client.input.KeyEvent com.mojang.blaze3d.platform.Window | grep -vE '^\s*(private|static) final .*;$' | head -150
-              break
-            fi
-          done
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb > /dev/null
+          xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew runClientGameTest --stacktrace
+      - name: capture test screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Game-Test-Screenshots
+          path: build/run/clientGameTest/screenshots/

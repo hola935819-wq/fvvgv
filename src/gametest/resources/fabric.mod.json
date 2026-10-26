@@ -1,0 +1,15 @@
+{
+	"schemaVersion": 1,
+	"id": "voltliz-gametest",
+	"version": "1.0.0",
+	"name": "Voltliz Client Game Tests",
+	"environment": "client",
+	"entrypoints": {
+		"fabric-client-gametest": [
+			"dev.voltliz.gametest.VoltlizClientGameTest"
+		]
+	},
+	"depends": {
+		"voltliz": "*"
+	}
+}
