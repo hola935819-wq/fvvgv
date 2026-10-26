@@ -67,8 +67,10 @@ public class ClickGuiScreen extends Screen {
 
 		String brand = VoltlizClient.NAME + " v" + VoltlizClient.version();
 		graphics.drawString(font, brand, width - font.width(brand) - 6, height - 14, Theme.accent(), true);
-		String hint = "Left click: toggle  |  Right click: settings  |  Drag headers to move";
-		graphics.drawString(font, hint, 6, height - 14, Theme.TEXT_DIM, true);
+		String hint = "Left click: toggle  |  Right click: settings  |  Scroll to move panels";
+		if (font.width(hint) + font.width(brand) + 24 < width) {
+			graphics.drawString(font, hint, 6, height - 14, Theme.TEXT_DIM, true);
+		}
 	}
 
 	private void renderHudButton(GuiGraphics graphics, int mouseX, int mouseY) {
