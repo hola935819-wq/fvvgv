@@ -92,7 +92,11 @@ public final class ModuleManager {
 	}
 
 	private void handleKeybinds(Minecraft client) {
+		//? if >=1.21.9 {
 		long window = client.getWindow().handle();
+		//?} else {
+		/*long window = client.getWindow().getWindow();
+		*///?}
 		Set<Integer> down = new HashSet<>();
 
 		for (Module module : modules) {
