@@ -2,6 +2,7 @@ package dev.voltliz.client.module.hud;
 
 import dev.voltliz.client.VoltlizClient;
 import dev.voltliz.client.module.HudModule;
+import dev.voltliz.client.render.Icons;
 import dev.voltliz.client.render.Render2D;
 import dev.voltliz.client.render.VText;
 import dev.voltliz.client.setting.BooleanSetting;
@@ -30,40 +31,39 @@ public class WatermarkModule extends HudModule {
 		String suffix = "Client";
 		String info = (showVersion.get() ? "v" + version : "") + (showFps.get() ? (showVersion.get() ? "  " : "") + mc().getFps() + " fps" : "");
 
-		int padding = background.get() ? 6 : 0;
+		int padding = background.get() ? 5 : 0;
+		int logoSize = 14;
 		int titleWidth = VText.width(TITLE, true);
-		int contentWidth = 12 + titleWidth + 3 + VText.width(suffix) + (info.isEmpty() ? 0 : 10 + VText.width(info));
-		width = contentWidth + padding * 2;
-		height = VText.HEIGHT + 8;
+		int contentWidth = logoSize + 5 + titleWidth + 3 + VText.width(suffix) + (info.isEmpty() ? 0 : 11 + VText.width(info));
+		width = contentWidth + padding * 2 + (background.get() ? 2 : 0);
+		height = Math.max(logoSize, VText.HEIGHT) + padding * 2;
 
 		if (background.get()) {
 			RenderUtil.hudBackground(graphics, 0, 0, width, height);
+			// Thin gradient line along the top edge.
+			Render2D.horizontalGradient(graphics, 4, 0, width - 8, 1, 0, Theme.accent(), Theme.accent2());
 		}
 
 		int centerY = height / 2;
-		Render2D.circle(graphics, padding + 4, centerY, 4.5f, ColorUtil.withAlpha(Theme.accent(), 0x50));
-		Render2D.circle(graphics, padding + 4, centerY, 2.5f, Theme.accent());
+		Icons.logo(graphics, padding, centerY - logoSize / 2f, logoSize);
 
-		int x = padding + 12;
-		int textY = 4;
-		long time = System.currentTimeMillis();
-		for (int i = 0; i < TITLE.length(); i++) {
-			String letter = String.valueOf(TITLE.charAt(i));
-			int color = Theme.accent(i * 120L);
-			if (wave.get()) {
-				float t = (float) (Math.sin(time / 350.0 - i * 0.55) + 1) / 2;
-				color = ColorUtil.lerp(color, 0xFFFFFFFF, t * 0.55f);
-			}
-			VText.draw(graphics, letter, x, textY, color, true);
-			x += VText.width(letter, true);
+		int x = padding + logoSize + 5;
+		float textY = centerY - VText.HEIGHT / 2f;
+		int from = Theme.accent();
+		int to = Theme.accent2();
+		if (wave.get()) {
+			float t = (float) (Math.sin(System.currentTimeMillis() / 600.0) + 1) / 2;
+			from = ColorUtil.lerp(Theme.accent(), Theme.accent2(), t);
+			to = ColorUtil.lerp(Theme.accent2(), Theme.accent(), t);
 		}
+		x += VText.drawGradient(graphics, TITLE, x, textY, from, to, true);
 		x += 3;
 		VText.draw(graphics, suffix, x, textY, Theme.TEXT);
 		x += VText.width(suffix);
 
 		if (!info.isEmpty()) {
-			Render2D.rect(graphics, x + 5, 4, 1, height - 8, 0x30FFFFFF);
-			VText.draw(graphics, info, x + 10, textY, Theme.TEXT_DIM);
+			Render2D.rect(graphics, x + 5, padding + 2, 1, height - padding * 2 - 4, 0x30FFFFFF);
+			VText.draw(graphics, info, x + 11, textY, Theme.TEXT_DIM);
 		}
 	}
 }

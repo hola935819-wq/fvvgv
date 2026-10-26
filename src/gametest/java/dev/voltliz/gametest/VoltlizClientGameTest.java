@@ -33,15 +33,20 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			double[] card = context.computeOnClient(client -> {
 				int width = client.getWindow().getGuiScaledWidth();
 				int height = client.getWindow().getGuiScaledHeight();
-				int windowWidth = Math.min(440, width - 24);
-				int windowHeight = Math.min(280, height - 24);
+				int windowWidth = Math.min(480, width - 24);
+				int windowHeight = Math.min(300, height - 24);
 				double scale = client.getWindow().getGuiScale();
-				return new double[] {((width - windowWidth) / 2 + 140) * scale, ((height - windowHeight) / 2 + 52) * scale};
+				// Sidebar (118) + content padding (14) + a bit into the card; content starts 46 below the top.
+				return new double[] {((width - windowWidth) / 2 + 118 + 14 + 40) * scale, ((height - windowHeight) / 2 + 46 + 18) * scale};
 			});
 			context.getInput().setCursorPos(card[0], card[1]);
 			context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_RIGHT);
 			context.waitTicks(10);
 			context.takeScreenshot("voltliz-clickgui-settings");
+
+			context.getInput().typeChars("ar");
+			context.waitTicks(10);
+			context.takeScreenshot("voltliz-clickgui-search");
 
 			context.setScreen(() -> new HudEditorScreen(new ClickGuiScreen()));
 			context.waitTicks(5);

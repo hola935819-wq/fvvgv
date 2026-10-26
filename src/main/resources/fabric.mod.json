@@ -8,6 +8,7 @@
 		"Voltliz"
 	],
 	"license": "All-Rights-Reserved",
+	"icon": "assets/voltliz/icon.png",
 	"environment": "client",
 	"entrypoints": {
 		"client": [

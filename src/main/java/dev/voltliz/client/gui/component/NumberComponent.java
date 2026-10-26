@@ -37,8 +37,9 @@ public class NumberComponent extends SettingComponent<NumberSetting> {
 		int trackY = y + 16;
 		float filled = width * shown;
 		Render2D.roundedRect(graphics, x, trackY, width, 3, 1.5f, Theme.FIELD);
-		Render2D.roundedRect(graphics, x, trackY, Math.max(3, filled), 3, 1.5f, Theme.accent());
-		Render2D.circle(graphics, x + filled, trackY + 1.5f, 3.5f, 0xFFFFFFFF);
+		Render2D.horizontalGradient(graphics, x, trackY, Math.max(3, filled), 3, 1.5f, Theme.accent(), Theme.gradient(shown));
+		Render2D.shadow(graphics, x + filled - 4, trackY - 2.5f, 8, 8, 4, 3, 0x50);
+		Render2D.circle(graphics, x + filled, trackY + 1.5f, 4, 0xFFFFFFFF);
 	}
 
 	@Override

@@ -9,11 +9,12 @@ import dev.voltliz.client.util.Theme;
 /** Holds the look of the Click GUI and the accent color shared by the HUD. */
 public class ClickGuiModule extends Module {
 	public final ColorSetting accent = add(new ColorSetting("Accent", Theme.DEFAULT_ACCENT));
+	public final ColorSetting accent2 = add(new ColorSetting("Accent 2", Theme.DEFAULT_ACCENT_2));
 	public final BooleanSetting dimBackground = add(new BooleanSetting("Dim Background", true));
 	public final BooleanSetting descriptions = add(new BooleanSetting("Descriptions", true));
 
 	public ClickGuiModule() {
-		super("ClickGUI", "Colors and behaviour of this menu. Open it with Right Shift.", Category.CLIENT);
+		super("Theme", "Accent colors and menu behaviour. Open the menu with Right Shift.", Category.CLIENT);
 	}
 
 	@Override

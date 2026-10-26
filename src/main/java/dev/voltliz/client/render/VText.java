@@ -1,6 +1,7 @@
 package dev.voltliz.client.render;
 
 import dev.voltliz.client.VoltlizClient;
+import dev.voltliz.client.util.ColorUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,6 +37,10 @@ public final class VText {
 	}
 
 	public static void draw(GuiGraphics graphics, String text, float x, float y, int color, boolean bold) {
+		color = Render2D.fade(color);
+		if ((color >>> 24) < 4) {
+			return;
+		}
 		graphics.drawString(font(), of(text, bold), Math.round(x), Math.round(y), color, false);
 	}
 
@@ -47,8 +52,33 @@ public final class VText {
 		graphics.pose().pushMatrix();
 		graphics.pose().translate(x, y);
 		graphics.pose().scale(scale, scale);
-		graphics.drawString(font(), of(text, bold), 0, 0, color, false);
+		draw(graphics, text, 0, 0, color, bold);
 		graphics.pose().popMatrix();
+	}
+
+	/** Draws each character with a color between {@code from} and {@code to}; returns the width. */
+	public static int drawGradient(GuiGraphics graphics, String text, float x, float y, int from, int to, boolean bold) {
+		int total = Math.max(1, width(text, bold));
+		float cursor = x;
+		for (int i = 0; i < text.length(); i++) {
+			String letter = String.valueOf(text.charAt(i));
+			float t = (cursor - x + width(letter, bold) / 2f) / total;
+			draw(graphics, letter, cursor, y, ColorUtil.lerp(from, to, t), bold);
+			cursor += width(letter, bold);
+		}
+		return total;
+	}
+
+	/** Shortens {@code text} with an ellipsis so it fits in {@code maxWidth}. */
+	public static String trim(String text, int maxWidth, boolean bold) {
+		if (width(text, bold) <= maxWidth) {
+			return text;
+		}
+		String result = text;
+		while (result.length() > 1 && width(result + "...", bold) > maxWidth) {
+			result = result.substring(0, result.length() - 1);
+		}
+		return result.trim() + "...";
 	}
 
 	private static Font font() {

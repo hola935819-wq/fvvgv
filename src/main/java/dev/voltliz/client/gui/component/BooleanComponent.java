@@ -23,7 +23,7 @@ public class BooleanComponent extends SettingComponent<BooleanSetting> {
 	public void render(GuiGraphics graphics, int mouseX, int mouseY) {
 		progress = animator.approach(progress, setting.get() ? 1 : 0, 18);
 		drawName(graphics, setting.getName(), y + 4);
-		drawSwitch(graphics, x + width - 18, y + 3, progress);
+		drawSwitch(graphics, x + width - 20, y + 2, progress);
 	}
 
 	@Override

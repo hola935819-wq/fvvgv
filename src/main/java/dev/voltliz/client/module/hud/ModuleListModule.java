@@ -42,18 +42,22 @@ public class ModuleListModule extends HudModule {
 		height = Math.max(lineHeight, names.size() * (lineHeight + 1));
 
 		boolean right = align.is("Right");
+		int count = Math.max(1, names.size() - 1);
+		float phase = (float) ((System.currentTimeMillis() % 4000L) / 4000.0);
 		for (int i = 0; i < names.size(); i++) {
 			String name = names.get(i);
 			int lineWidth = VText.width(name) + 12;
 			int x = right ? width - lineWidth : 0;
 			int y = i * (lineHeight + 1);
-			int color = Theme.accent(i * 150L);
+			// Each row takes its color from a slowly moving accent -> accent2 gradient.
+			float t = (float) i / count * 0.6f + phase;
+			int color = Theme.gradient((float) (Math.sin(t * Math.PI * 2) + 1) / 2);
 
 			if (background.get()) {
 				Render2D.roundedRect(graphics, x, y, lineWidth, lineHeight, 3.5f, Theme.HUD_BACKGROUND);
 			}
-			float dotX = right ? x + lineWidth - 4.5f : x + 4.5f;
-			Render2D.circle(graphics, dotX, y + lineHeight / 2f, 1.5f, color);
+			float barX = right ? x + lineWidth - 3 : x + 1;
+			Render2D.roundedRect(graphics, barX, y + 3, 2, lineHeight - 6, 1, color);
 			VText.draw(graphics, name, x + (right ? 4 : 8), y + 3, color);
 		}
 	}

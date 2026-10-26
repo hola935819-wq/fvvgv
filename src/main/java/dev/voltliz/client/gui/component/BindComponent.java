@@ -17,6 +17,10 @@ public class BindComponent extends SettingComponent<Setting<?>> {
 		this.module = module;
 	}
 
+	public boolean isListening() {
+		return listening;
+	}
+
 	@Override
 	public int getHeight() {
 		return 17;

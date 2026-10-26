@@ -26,15 +26,18 @@ public abstract class SettingComponent<S extends Setting<?>> extends GuiComponen
 	protected int drawPill(GuiGraphics graphics, String text, int pillY, int textColor) {
 		int pillWidth = VText.width(text) + 10;
 		int pillX = x + width - pillWidth;
-		Render2D.roundedRect(graphics, pillX, pillY, pillWidth, 13, 4, Theme.FIELD);
+		Render2D.roundedRect(graphics, pillX, pillY, pillWidth, 13, 6.5f, Theme.FIELD);
 		VText.draw(graphics, text, pillX + 5, pillY + 3, textColor);
 		return pillX;
 	}
 
 	/** An iOS style switch. {@code progress} goes from 0 (off) to 1 (on). */
 	public static void drawSwitch(GuiGraphics graphics, float x, float y, float progress) {
-		int accent = Theme.accent();
-		Render2D.roundedRect(graphics, x, y, 18, 10, 5, ColorUtil.lerp(0xFF333849, accent, progress));
-		Render2D.circle(graphics, x + 5 + progress * 8, y + 5, 3.5f, 0xFFFFFFFF);
+		Render2D.roundedRect(graphics, x, y, 20, 11, 5.5f, 0xFF2C3349);
+		if (progress > 0.01f) {
+			int alpha = Math.round(progress * 255);
+			Render2D.horizontalGradient(graphics, x, y, 20, 11, 5.5f, ColorUtil.withAlpha(Theme.accent(), alpha), ColorUtil.withAlpha(Theme.accent2(), alpha));
+		}
+		Render2D.circle(graphics, x + 5.5f + progress * 9, y + 5.5f, 4, 0xFFFFFFFF);
 	}
 }

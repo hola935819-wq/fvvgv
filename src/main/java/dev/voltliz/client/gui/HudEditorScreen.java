@@ -84,7 +84,8 @@ public class HudEditorScreen extends Screen {
 		int cardX = (width - cardWidth) / 2;
 		int cardY = height - 46;
 		Render2D.shadow(graphics, cardX, cardY, cardWidth, 32, 8, 6, 0x60);
-		Render2D.roundedRect(graphics, cardX, cardY, cardWidth, 32, 8, Theme.WINDOW);
+		Render2D.verticalGradient(graphics, cardX, cardY, cardWidth, 32, 8, Theme.WINDOW_TOP, Theme.WINDOW_BOTTOM);
+		Render2D.roundedOutline(graphics, cardX, cardY, cardWidth, 32, 8, ColorUtil.withAlpha(accent, 0x55));
 		VText.drawCentered(graphics, title, width / 2f, cardY + 6, accent, true);
 		VText.drawCentered(graphics, help, width / 2f, cardY + 18, Theme.TEXT_DIM, false);
 	}
