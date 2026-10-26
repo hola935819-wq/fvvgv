@@ -27,6 +27,20 @@ jobs:
         with:
           name: Voltliz-Client
           path: build/libs/
+      - name: dump minecraft signatures (temporary)
+        if: always()
+        continue-on-error: true
+        run: |
+          jar=$(find ~/.gradle/caches/fabric-loom -name 'minecraft-merged-*.jar' | grep -v sources | head -1)
+          echo "JAR: $jar"
+          javap -cp "$jar" net.minecraft.network.chat.Style | grep -iE 'font' || true
+          javap -cp "$jar" net.minecraft.network.chat.FontDescription 'net.minecraft.network.chat.FontDescription$Resource' || true
+          javap -cp "$jar" net.minecraft.client.gui.GuiGraphics | grep -E 'blit|drawString|Pipeline|submit|fill\(' || true
+          javap -cp "$jar" net.minecraft.client.renderer.texture.DynamicTexture | grep -E 'public' || true
+          javap -cp "$jar" com.mojang.blaze3d.platform.NativeImage | grep -E 'NativeImage\(|setPixel|Format' || true
+          javap -cp "$jar" net.minecraft.client.renderer.texture.TextureManager | grep -E 'register|public' || true
+          javap -cp "$jar" net.minecraft.client.renderer.RenderPipelines | grep -E 'GUI' || true
+          javap -cp "$jar" net.minecraft.client.gui.Font | grep -E 'width|lineHeight|drawInBatch' || true
       - name: run client game test
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb > /dev/null
