@@ -19,7 +19,6 @@ import dev.voltliz.client.module.hud.WatermarkModule;
 import dev.voltliz.client.module.player.ToggleSprintModule;
 import dev.voltliz.client.module.render.Esp2DModule;
 import dev.voltliz.client.module.render.Esp3DModule;
-import dev.voltliz.client.module.render.OverlayModule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -121,8 +120,8 @@ public final class ModuleManager {
 	}
 
 	/** Modules that draw world overlays (ESP) under the HUD. */
-	public List<OverlayModule> getOverlayModules() {
-		return modules.stream().filter(OverlayModule.class::isInstance).map(OverlayModule.class::cast).toList();
+	public List<Module> getOverlayModules() {
+		return modules.stream().filter(Overlay.class::isInstance).toList();
 	}
 
 	public List<HudModule> getHudModules() {

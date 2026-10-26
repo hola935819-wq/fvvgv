@@ -19,6 +19,7 @@ public class Esp2DModule extends EspModule {
 	private final BooleanSetting healthBar = add(new BooleanSetting("Health Bar", true));
 	private final BooleanSetting nameTag = add(new BooleanSetting("Name Tag", true));
 	private final BooleanSetting distance = add(new BooleanSetting("Distance", true));
+	private final BooleanSetting tracers = add(new BooleanSetting("Tracers", false));
 
 	public Esp2DModule() {
 		super("2D ESP", "Draws a clean 2D box, health bar and name on targets.");
@@ -49,6 +50,12 @@ public class Esp2DModule extends EspModule {
 		int topColor = topColor(entity);
 		int bottomColor = bottomColor(entity);
 
+		if (tracers.get()) {
+			float startX = graphics.guiWidth() / 2f;
+			float startY = graphics.guiHeight();
+			Render2D.line(graphics, startX, startY, left + width / 2, bottom, 2.5f, ColorUtil.withAlpha(bottomColor, 0x30));
+			Render2D.line(graphics, startX, startY, left + width / 2, bottom, 1, ColorUtil.withAlpha(bottomColor, 0xC0));
+		}
 		if (fill.get()) {
 			Render2D.gradientRect(graphics, left, top, width, height, ColorUtil.withAlpha(topColor, 0x22), ColorUtil.withAlpha(bottomColor, 0x10));
 		}

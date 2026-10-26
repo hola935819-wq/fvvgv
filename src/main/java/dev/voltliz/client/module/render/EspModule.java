@@ -1,5 +1,8 @@
 package dev.voltliz.client.module.render;
 
+import dev.voltliz.client.module.Category;
+import dev.voltliz.client.module.Module;
+import dev.voltliz.client.module.Overlay;
 import dev.voltliz.client.module.combat.Targets;
 import dev.voltliz.client.setting.BooleanSetting;
 import dev.voltliz.client.setting.ModeSetting;
@@ -19,16 +22,17 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Shared target filters, colors and box projection for the 2D and 3D ESP. */
-public abstract class EspModule extends OverlayModule {
-	protected final ModeSetting color = add(new ModeSetting("Color", "Theme", "Theme", "Health"));
+public abstract class EspModule extends Module implements Overlay {
+	protected final ModeSetting color = add(new ModeSetting("Color", "Theme", "Theme", "Health", "Team"));
 	protected final NumberSetting range = add(new NumberSetting("Range", 64, 8, 256, 8));
 	protected final BooleanSetting players = add(new BooleanSetting("Players", true));
 	protected final BooleanSetting hostiles = add(new BooleanSetting("Hostiles", true));
 	protected final BooleanSetting passives = add(new BooleanSetting("Passives", false));
 	protected final BooleanSetting invisibles = add(new BooleanSetting("Invisibles", true));
+	protected final BooleanSetting ignoreTeammates = add(new BooleanSetting("Ignore Teammates", false));
 
 	protected EspModule(String name, String description) {
-		super(name, description);
+		super(name, description, Category.RENDER);
 	}
 
 	@Override
@@ -43,7 +47,8 @@ public abstract class EspModule extends OverlayModule {
 		double maxDistance = range.get() * range.get();
 		for (Entity entity : client.level.entitiesForRendering()) {
 			if (entity instanceof LivingEntity living && player.distanceToSqr(entity) <= maxDistance
-					&& Targets.isValid(entity, player, players.get(), hostiles.get(), passives.get(), invisibles.get())) {
+					&& Targets.isValid(entity, player, players.get(), hostiles.get(), passives.get(), invisibles.get())
+					&& !(ignoreTeammates.get() && entity.isAlliedTo(player))) {
 				targets.add(living);
 			}
 		}
@@ -88,10 +93,22 @@ public abstract class EspModule extends OverlayModule {
 	}
 
 	protected int topColor(LivingEntity entity) {
-		return color.is("Health") ? healthColor(healthFraction(entity)) : Theme.accent();
+		if (color.is("Health")) {
+			return healthColor(healthFraction(entity));
+		}
+		return color.is("Team") ? teamColor(entity, Theme.accent()) : Theme.accent();
 	}
 
 	protected int bottomColor(LivingEntity entity) {
-		return color.is("Health") ? healthColor(healthFraction(entity)) : Theme.accent2();
+		if (color.is("Health")) {
+			return healthColor(healthFraction(entity));
+		}
+		return color.is("Team") ? ColorUtil.lerp(teamColor(entity, Theme.accent2()), 0xFF000000, 0.25f) : Theme.accent2();
+	}
+
+	/** The scoreboard team color, or {@code fallback} when the entity has no colored team. */
+	private static int teamColor(LivingEntity entity, int fallback) {
+		int rgb = entity.getTeamColor() & 0xFFFFFF;
+		return rgb == 0xFFFFFF ? fallback : 0xFF000000 | rgb;
 	}
 }

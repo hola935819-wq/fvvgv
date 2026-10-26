@@ -10,15 +10,18 @@ import dev.voltliz.client.util.RenderUtil;
 import dev.voltliz.client.util.Theme;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 /** Shows who you are fighting: face, name, health and whether you are winning. */
 public class TargetHudModule extends HudModule {
 	private static final int WIDTH = 156;
-	private static final int HEIGHT = 50;
+	private static final int HEIGHT = 62;
 	private static final int WIN = 0xFF3DFF8A;
 	private static final int LOSE = 0xFFFF4D5E;
 	private static final int EVEN = 0xFFFFC23D;
@@ -28,6 +31,8 @@ public class TargetHudModule extends HudModule {
 
 	private final NumberSetting timeout = add(new NumberSetting("Timeout", 4, 1, 15, 0.5));
 	private final BooleanSetting showArmor = add(new BooleanSetting("Count Armor", true));
+	private final BooleanSetting showItems = add(new BooleanSetting("Show Items", true));
+	private final BooleanSetting hurtEffect = add(new BooleanSetting("Hurt Effect", true));
 
 	private float shownHealth = -1;
 	private float shownRatio = 0.5f;
@@ -93,9 +98,11 @@ public class TargetHudModule extends HudModule {
 		RenderUtil.hudBackground(graphics, 0, 0, WIDTH, HEIGHT);
 		Render2D.horizontalGradient(graphics, 6, 0, WIDTH - 12, 1, 0, Theme.accent(), Theme.accent2());
 
-		// Face.
+		// Face, which flashes red and shakes a little when the target is hurt.
 		int face = 30;
-		int faceX = 7;
+		float hurt = hurtEffect.get() ? Math.max(0, shown.hurtTime / 10f) : 0;
+		float shake = hurt * 1.5f * (float) Math.sin(now / 25.0);
+		int faceX = 7 + Math.round(shake);
 		int faceY = 7;
 		Render2D.shadow(graphics, faceX, faceY, face, face, 6, 4, 0x50, statusColor);
 		if (shown instanceof AbstractClientPlayer player) {
@@ -105,6 +112,9 @@ public class TargetHudModule extends HudModule {
 			Render2D.verticalGradient(graphics, faceX, faceY, face, face, 6, Theme.accent(), Theme.accent2());
 			String initial = shown.getName().getString().substring(0, 1).toUpperCase();
 			VText.drawScaled(graphics, initial, faceX + face / 2f - VText.width(initial, true) * 0.75f, faceY + 8, 0xFFFFFFFF, true, 1.5f);
+		}
+		if (hurt > 0) {
+			Render2D.roundedRect(graphics, faceX, faceY, face, face, 4, ColorUtil.withAlpha(LOSE, Math.round(hurt * 0x90)));
 		}
 
 		// Name and status pill.
@@ -127,11 +137,35 @@ public class TargetHudModule extends HudModule {
 		}
 		String healthText = String.format("%.1f HP", theirHealth);
 		String distance = String.format("%.1fm", self.distanceTo(shown));
+		if (shown instanceof AbstractClientPlayer player && mc().getConnection() != null) {
+			PlayerInfo info = mc().getConnection().getPlayerInfo(player.getUUID());
+			if (info != null) {
+				distance = info.getLatency() + "ms  ·  " + distance;
+			}
+		}
 		VText.drawScaled(graphics, healthText, barX, 29, Theme.TEXT, true, 0.75f);
 		VText.drawScaled(graphics, distance, WIDTH - 7 - VText.width(distance) * 0.75f, 29, Theme.TEXT_DIM, false, 0.75f);
 
+		// Their armor and weapon.
+		if (showItems.get()) {
+			int itemX = 7;
+			for (ItemStack stack : equipment(shown)) {
+				if (!stack.isEmpty()) {
+					graphics.pose().pushMatrix();
+					graphics.pose().translate(itemX, 41);
+					graphics.pose().scale(0.75f, 0.75f);
+					graphics.renderItem(stack, 0, 0);
+					graphics.pose().popMatrix();
+					itemX += 14;
+				}
+			}
+			if (itemX == 7) {
+				VText.drawScaled(graphics, "No armor", 7, 44, Theme.TEXT_DIM, false, 0.7f);
+			}
+		}
+
 		// Tug-of-war bar: your share of the fight on the left, theirs on the right.
-		int tugY = 40;
+		int tugY = 55;
 		int tugWidth = WIDTH - 14;
 		float split = tugWidth * shownRatio;
 		Render2D.roundedRect(graphics, 7, tugY, tugWidth, 4, 2, ColorUtil.withAlpha(LOSE, 0xB0));
@@ -139,6 +173,17 @@ public class TargetHudModule extends HudModule {
 		Render2D.circle(graphics, 7 + split, tugY + 2, 2.6f, 0xFFFFFFFF);
 
 		Render2D.setAlpha(previousAlpha);
+	}
+
+	private static ItemStack[] equipment(LivingEntity entity) {
+		return new ItemStack[] {
+				entity.getMainHandItem(),
+				entity.getItemBySlot(EquipmentSlot.HEAD),
+				entity.getItemBySlot(EquipmentSlot.CHEST),
+				entity.getItemBySlot(EquipmentSlot.LEGS),
+				entity.getItemBySlot(EquipmentSlot.FEET),
+				entity.getOffhandItem()
+		};
 	}
 
 	/** Health weighted by armor, so a full netherite player counts as tougher than a naked one. */

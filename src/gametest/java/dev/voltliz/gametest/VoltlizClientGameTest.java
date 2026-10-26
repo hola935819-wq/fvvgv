@@ -83,6 +83,9 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			singleplayer.getServer().runCommand("difficulty normal");
 			singleplayer.getServer().runCommand("execute as @a at @s run tp @s ~ ~ ~ 0 0");
 			singleplayer.getServer().runCommand("execute at @a run summon husk ~ ~ ~2.5 {NoAI:1b,PersistenceRequired:1b,Silent:1b}");
+			singleplayer.getServer().runCommand("item replace entity @e[type=husk] weapon.mainhand with iron_sword");
+			singleplayer.getServer().runCommand("item replace entity @e[type=husk] armor.head with iron_helmet");
+			singleplayer.getServer().runCommand("item replace entity @e[type=husk] armor.chest with diamond_chestplate");
 			context.waitTicks(20);
 			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(TriggerBotModule.class).setEnabled(true));
 			context.waitTicks(40);
@@ -113,6 +116,7 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 				aimAssist.setEnabled(true);
 			});
 			context.waitTicks(40);
+			context.takeScreenshot("voltliz-aimassist");
 			float yaw = context.computeOnClient(client -> Mth.wrapDegrees(client.player.getYRot()));
 			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(AimAssistModule.class).setEnabled(false));
 			if (Math.abs(yaw) > 15) {
@@ -123,7 +127,11 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			singleplayer.getServer().runCommand("execute at @a run summon husk ~3 ~ ~7 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Rotation:[160f,0f]}");
 			singleplayer.getServer().runCommand("execute as @a at @s run tp @s ~ ~ ~-3 10 5");
 			context.waitTicks(10);
-			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(Esp2DModule.class).setEnabled(true));
+			context.runOnClient(client -> {
+				Esp2DModule esp = VoltlizClient.get().getModuleManager().get(Esp2DModule.class);
+				setSetting(esp, "Tracers", true);
+				esp.setEnabled(true);
+			});
 			context.waitTicks(5);
 			context.takeScreenshot("voltliz-esp-2d");
 			context.runOnClient(client -> {

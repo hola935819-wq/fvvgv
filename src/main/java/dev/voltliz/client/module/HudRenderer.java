@@ -1,7 +1,6 @@
 package dev.voltliz.client.module;
 
 import dev.voltliz.client.VoltlizClient;
-import dev.voltliz.client.module.render.OverlayModule;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,9 +18,9 @@ public final class HudRenderer {
 		}
 
 		float partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
-		for (OverlayModule module : voltliz.getModuleManager().getOverlayModules()) {
+		for (Module module : voltliz.getModuleManager().getOverlayModules()) {
 			if (module.isEnabled()) {
-				module.renderOverlay(graphics, partialTick);
+				((Overlay) module).renderOverlay(graphics, partialTick);
 			}
 		}
 	}
