@@ -11,6 +11,14 @@ import org.lwjgl.glfw.GLFW;
 public class VoltlizClientGameTest implements FabricClientGameTest {
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		// CI renders on the CPU; capping the frame rate and view distance leaves enough CPU for
+		// the integrated server to generate the spawn area before the world load times out.
+		context.runOnClient(client -> {
+			client.options.framerateLimit().set(30);
+			client.options.renderDistance().set(4);
+			client.options.simulationDistance().set(5);
+		});
+
 		try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
 			singleplayer.getClientWorld().waitForChunksRender();
 			context.waitTicks(20);

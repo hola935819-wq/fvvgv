@@ -31,3 +31,7 @@ Requiere JDK 21 o superior.
 El `.jar` queda en `build/libs/`. Cópialo a la carpeta `mods` junto con
 [Fabric API](https://modrinth.com/mod/fabric-api) para 1.21.11.
 Para probarlo desde el código: `./gradlew runClient`.
+
+## Créditos
+
+La interfaz usa la fuente [Poppins](https://github.com/itfoundry/Poppins), con licencia SIL Open Font License 1.1 (ver `POPPINS-OFL.txt`).
