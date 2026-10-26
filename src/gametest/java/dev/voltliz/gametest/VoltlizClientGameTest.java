@@ -8,6 +8,7 @@ import dev.voltliz.client.module.Category;
 import dev.voltliz.client.module.Module;
 import dev.voltliz.client.module.combat.AimAssistModule;
 import dev.voltliz.client.module.combat.AutoCrystalModule;
+import dev.voltliz.client.module.combat.AutoTotemModule;
 import dev.voltliz.client.module.combat.TriggerBotModule;
 import dev.voltliz.client.module.render.Esp2DModule;
 import dev.voltliz.client.module.render.Esp3DModule;
@@ -25,6 +26,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
+import net.minecraft.world.item.Items;
 import org.lwjgl.glfw.GLFW;
 
 /** Opens the Click GUI and HUD editor in a real world and takes screenshots of each. */
@@ -188,6 +190,29 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			}
 			if (selectedSlot != 0) {
 				throw new AssertionError("AutoCrystal did not switch back to the original slot (now " + selectedSlot + ")");
+			}
+
+			// AutoTotem: a totem in the main inventory and an empty offhand. It should open the inventory,
+			// swap the totem into the offhand and close the inventory again.
+			singleplayer.getServer().runCommand("item replace entity @a weapon.offhand with air");
+			singleplayer.getServer().runCommand("item replace entity @a inventory.5 with totem_of_undying");
+			context.waitTicks(5);
+			context.runOnClient(client -> {
+				AutoTotemModule autoTotem = VoltlizClient.get().getModuleManager().get(AutoTotemModule.class);
+				setSetting(autoTotem, "Mode", "Always");
+				autoTotem.setEnabled(true);
+			});
+			context.waitTicks(3);
+			context.takeScreenshot("voltliz-autototem-open");
+			context.waitTicks(30);
+			boolean totemInOffhand = context.computeOnClient(client -> client.player.getOffhandItem().is(Items.TOTEM_OF_UNDYING));
+			boolean screenClosed = context.computeOnClient(client -> client.screen == null);
+			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(AutoTotemModule.class).setEnabled(false));
+			if (!totemInOffhand) {
+				throw new AssertionError("AutoTotem did not move the totem to the offhand");
+			}
+			if (!screenClosed) {
+				throw new AssertionError("AutoTotem left the inventory open");
 			}
 		}
 	}
