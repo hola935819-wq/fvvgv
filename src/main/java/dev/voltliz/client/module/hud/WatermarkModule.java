@@ -22,7 +22,7 @@ public class WatermarkModule extends HudModule {
 	private final String version = VoltlizClient.version();
 
 	public WatermarkModule() {
-		super("Watermark", "Shows the client name.", 4, 4);
+		super("Watermark", "Shows the client name.", 8, 8);
 		setEnabled(true);
 	}
 
@@ -34,7 +34,7 @@ public class WatermarkModule extends HudModule {
 		int padding = background.get() ? 5 : 0;
 		int logoSize = 14;
 		int titleWidth = VText.width(TITLE, true);
-		int contentWidth = logoSize + 5 + titleWidth + 4 + VText.width(suffix) + (info.isEmpty() ? 0 : 11 + VText.width(info));
+		int contentWidth = logoSize + 3 + titleWidth + 4 + VText.width(suffix) + (info.isEmpty() ? 0 : 11 + VText.width(info));
 		width = contentWidth + padding * 2 + (background.get() ? 2 : 0);
 		height = Math.max(logoSize, VText.HEIGHT) + padding * 2;
 
@@ -47,7 +47,7 @@ public class WatermarkModule extends HudModule {
 		int centerY = height / 2;
 		Icons.logo(graphics, padding, centerY - logoSize / 2f, logoSize);
 
-		int x = padding + logoSize + 5;
+		int x = padding + logoSize + 3;
 		float textY = centerY - VText.HEIGHT / 2f;
 		int from = Theme.accent();
 		int to = Theme.accent2();

@@ -19,7 +19,7 @@ public class ModuleListModule extends HudModule {
 	private final ModeSetting align = add(new ModeSetting("Align", "Right", "Right", "Left"));
 
 	public ModuleListModule() {
-		super("Module List", "Lists your enabled modules.", 10_000, 4);
+		super("Module List", "Lists your enabled modules.", 10_000, 8);
 		setEnabled(true);
 	}
 

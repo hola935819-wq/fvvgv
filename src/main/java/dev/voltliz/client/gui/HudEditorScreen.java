@@ -97,15 +97,16 @@ public class HudEditorScreen extends Screen {
 		float h = dragging.getScaledHeight();
 
 		// Snap to the screen edges and to the center lines.
-		if (Math.abs(x) < SNAP) {
-			x = 0;
-		} else if (Math.abs(x + w - width) < SNAP) {
-			x = width - w;
+		int margin = HudModule.MARGIN;
+		if (Math.abs(x - margin) < SNAP) {
+			x = margin;
+		} else if (Math.abs(x + w - width + margin) < SNAP) {
+			x = width - w - margin;
 		}
-		if (Math.abs(y) < SNAP) {
-			y = 0;
-		} else if (Math.abs(y + h - height) < SNAP) {
-			y = height - h;
+		if (Math.abs(y - margin) < SNAP) {
+			y = margin;
+		} else if (Math.abs(y + h - height + margin) < SNAP) {
+			y = height - h - margin;
 		}
 		snappedX = Math.abs(x + w / 2 - width / 2f) < SNAP;
 		if (snappedX) {

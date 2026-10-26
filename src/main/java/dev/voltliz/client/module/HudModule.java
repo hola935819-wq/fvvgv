@@ -9,6 +9,9 @@ import net.minecraft.util.Mth;
  * content is drawn at (0, 0) inside a translated and scaled pose.
  */
 public abstract class HudModule extends Module {
+	/** Gap kept between HUD elements and the screen edges. */
+	public static final int MARGIN = 8;
+
 	protected final NumberSetting scale = add(new NumberSetting("Scale", 1.0, 0.5, 2.0, 0.05));
 
 	private float x;
@@ -42,8 +45,8 @@ public abstract class HudModule extends Module {
 	public void clampToScreen() {
 		int screenWidth = mc().getWindow().getGuiScaledWidth();
 		int screenHeight = mc().getWindow().getGuiScaledHeight();
-		x = Mth.clamp(x, 0, Math.max(0, screenWidth - getScaledWidth()));
-		y = Mth.clamp(y, 0, Math.max(0, screenHeight - getScaledHeight()));
+		x = Mth.clamp(x, MARGIN, Math.max(MARGIN, screenWidth - getScaledWidth() - MARGIN));
+		y = Mth.clamp(y, MARGIN, Math.max(MARGIN, screenHeight - getScaledHeight() - MARGIN));
 	}
 
 	public float getScale() {

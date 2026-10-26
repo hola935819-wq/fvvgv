@@ -9,7 +9,7 @@ public class DirectionModule extends TextHudModule {
 	private final BooleanSetting showYaw = add(new BooleanSetting("Show Yaw", false));
 
 	public DirectionModule() {
-		super("Direction", "Shows the direction you are facing.", 4, 78);
+		super("Direction", "Shows the direction you are facing.", 8, 92);
 		setEnabled(true);
 	}
 

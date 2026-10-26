@@ -4,7 +4,7 @@ import dev.voltliz.client.module.TextHudModule;
 
 public class FpsModule extends TextHudModule {
 	public FpsModule() {
-		super("FPS", "Shows your frames per second.", 4, 30);
+		super("FPS", "Shows your frames per second.", 8, 38);
 		setEnabled(true);
 	}
 

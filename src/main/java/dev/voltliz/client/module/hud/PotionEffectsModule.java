@@ -18,7 +18,7 @@ public class PotionEffectsModule extends HudModule {
 	private final BooleanSetting effectColors = add(new BooleanSetting("Effect Colors", true));
 
 	public PotionEffectsModule() {
-		super("Potion Effects", "Lists your active effects and their time left.", 10_000, 120);
+		super("Potion Effects", "Lists your active effects and their time left.", 10_000, 130);
 		setEnabled(true);
 	}
 
