@@ -5,6 +5,7 @@ import dev.voltliz.client.module.Module;
 import dev.voltliz.client.setting.BooleanSetting;
 import dev.voltliz.client.setting.ModeSetting;
 import dev.voltliz.client.setting.NumberSetting;
+import dev.voltliz.client.util.CpsTracker;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.EntityHitResult;
 /**
  * Attacks the entity under the crosshair by pressing the attack key for you: the click goes through
  * vanilla's own input handling (swing, cooldown, miss timer), exactly like a real left click.
+ * At most one click per tick, so it never sends more than a player clicking could.
  */
 public class TriggerBotModule extends Module {
 	private final ModeSetting timing = add(new ModeSetting("Timing", "Cooldown", "Cooldown", "CPS"));
@@ -84,6 +86,7 @@ public class TriggerBotModule extends Module {
 		if (ready) {
 			lastClick = now;
 			KeyMapping.click(KeyBindingHelper.getBoundKeyOf(client.options.keyAttack));
+			CpsTracker.onClick(0);
 		}
 	}
 
