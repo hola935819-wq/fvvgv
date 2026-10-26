@@ -157,7 +157,7 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			singleplayer.getServer().runCommand("kill @e[type=husk]");
 			singleplayer.getServer().runCommand("gamemode survival @a");
 			singleplayer.getServer().runCommand("effect give @a resistance infinite 4 true");
-			singleplayer.getServer().runCommand("attribute @a minecraft:explosion_knockback_resistance base set 1");
+			singleplayer.getServer().runCommand("execute as @a run attribute @s minecraft:explosion_knockback_resistance base set 1");
 			singleplayer.getServer().runCommand("execute at @a run fill ~-4 ~-1 ~-4 ~4 ~-1 ~6 obsidian");
 			singleplayer.getServer().runCommand("execute at @a run fill ~-4 ~ ~-4 ~4 ~3 ~6 air");
 			singleplayer.getServer().runCommand("item replace entity @a hotbar.0 with diamond_sword");
