@@ -5,10 +5,16 @@ import dev.voltliz.client.gui.ClickGuiScreen;
 import dev.voltliz.client.gui.GuiState;
 import dev.voltliz.client.gui.HudEditorScreen;
 import dev.voltliz.client.module.Category;
+import dev.voltliz.client.module.Module;
+import dev.voltliz.client.module.combat.AimAssistModule;
 import dev.voltliz.client.module.combat.TriggerBotModule;
+import dev.voltliz.client.module.render.Esp2DModule;
+import dev.voltliz.client.module.render.Esp3DModule;
+import dev.voltliz.client.setting.Setting;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -96,6 +102,47 @@ public class VoltlizClientGameTest implements FabricClientGameTest {
 			if (health[0] >= health[1]) {
 				throw new AssertionError("TriggerBot did not attack the husk (health " + health[0] + "/" + health[1] + ")");
 			}
+
+			// AimAssist: look 25 degrees away from the husk and check the view eases back toward it.
+			singleplayer.getServer().runCommand("execute as @a at @s run tp @s ~ ~ ~ 25 0");
+			context.waitTicks(5);
+			context.runOnClient(client -> {
+				AimAssistModule aimAssist = VoltlizClient.get().getModuleManager().get(AimAssistModule.class);
+				setSetting(aimAssist, "Click Only", false);
+				setSetting(aimAssist, "Range", 8.0);
+				aimAssist.setEnabled(true);
+			});
+			context.waitTicks(40);
+			float yaw = context.computeOnClient(client -> Mth.wrapDegrees(client.player.getYRot()));
+			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(AimAssistModule.class).setEnabled(false));
+			if (Math.abs(yaw) > 15) {
+				throw new AssertionError("AimAssist did not turn toward the husk (yaw " + yaw + ", husk at 0)");
+			}
+
+			// ESP: a second husk off to the side, then the 2D and 3D styles.
+			singleplayer.getServer().runCommand("execute at @a run summon husk ~3 ~ ~7 {NoAI:1b,PersistenceRequired:1b,Silent:1b,Rotation:[160f,0f]}");
+			singleplayer.getServer().runCommand("execute as @a at @s run tp @s ~ ~ ~-3 10 5");
+			context.waitTicks(10);
+			context.runOnClient(client -> VoltlizClient.get().getModuleManager().get(Esp2DModule.class).setEnabled(true));
+			context.waitTicks(5);
+			context.takeScreenshot("voltliz-esp-2d");
+			context.runOnClient(client -> {
+				VoltlizClient.get().getModuleManager().get(Esp2DModule.class).setEnabled(false);
+				VoltlizClient.get().getModuleManager().get(Esp3DModule.class).setEnabled(true);
+			});
+			context.waitTicks(5);
+			context.takeScreenshot("voltliz-esp-3d");
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void setSetting(Module module, String name, Object value) {
+		for (Setting<?> setting : module.getSettings()) {
+			if (setting.getName().equals(name)) {
+				((Setting<Object>) setting).set(value);
+				return;
+			}
+		}
+		throw new AssertionError("No setting " + name + " on " + module.getName());
 	}
 }

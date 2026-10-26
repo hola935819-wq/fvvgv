@@ -1,6 +1,7 @@
 package dev.voltliz.client.module;
 
 import dev.voltliz.client.module.client.ClickGuiModule;
+import dev.voltliz.client.module.combat.AimAssistModule;
 import dev.voltliz.client.module.combat.TriggerBotModule;
 import dev.voltliz.client.module.hud.ArmorStatusModule;
 import dev.voltliz.client.module.hud.ClockModule;
@@ -13,8 +14,12 @@ import dev.voltliz.client.module.hud.ModuleListModule;
 import dev.voltliz.client.module.hud.PingModule;
 import dev.voltliz.client.module.hud.PotionEffectsModule;
 import dev.voltliz.client.module.hud.ServerAddressModule;
+import dev.voltliz.client.module.hud.TargetHudModule;
 import dev.voltliz.client.module.hud.WatermarkModule;
 import dev.voltliz.client.module.player.ToggleSprintModule;
+import dev.voltliz.client.module.render.Esp2DModule;
+import dev.voltliz.client.module.render.Esp3DModule;
+import dev.voltliz.client.module.render.OverlayModule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,6 +35,10 @@ public final class ModuleManager {
 
 	public ModuleManager() {
 		add(new TriggerBotModule());
+		add(new AimAssistModule());
+
+		add(new Esp2DModule());
+		add(new Esp3DModule());
 
 		add(new WatermarkModule());
 		add(new FpsModule());
@@ -40,6 +49,7 @@ public final class ModuleManager {
 		add(new ServerAddressModule());
 		add(new ClockModule());
 		add(new KeystrokesModule());
+		add(new TargetHudModule());
 		add(new ArmorStatusModule());
 		add(new PotionEffectsModule());
 		add(new ModuleListModule());
@@ -60,6 +70,14 @@ public final class ModuleManager {
 		for (Module module : modules) {
 			if (module.isEnabled()) {
 				module.onPreTick(client);
+			}
+		}
+	}
+
+	public void onFrame(Minecraft client) {
+		for (Module module : modules) {
+			if (module.isEnabled()) {
+				module.onFrame(client);
 			}
 		}
 	}
@@ -100,6 +118,11 @@ public final class ModuleManager {
 
 	public List<Module> getModules() {
 		return Collections.unmodifiableList(modules);
+	}
+
+	/** Modules that draw world overlays (ESP) under the HUD. */
+	public List<OverlayModule> getOverlayModules() {
+		return modules.stream().filter(OverlayModule.class::isInstance).map(OverlayModule.class::cast).toList();
 	}
 
 	public List<HudModule> getHudModules() {

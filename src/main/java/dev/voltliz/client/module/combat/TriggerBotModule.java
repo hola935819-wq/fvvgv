@@ -10,14 +10,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.EntityHitResult;
 
 /**
@@ -73,7 +66,7 @@ public class TriggerBotModule extends Module {
 		if (now - targetSince < reaction.getInt()) {
 			return;
 		}
-		if (weaponOnly.get() && !isWeapon(player.getMainHandItem())) {
+		if (weaponOnly.get() && !Targets.isWeapon(player.getMainHandItem())) {
 			return;
 		}
 		if (critsOnly.get() && !canCrit(player)) {
@@ -94,23 +87,7 @@ public class TriggerBotModule extends Module {
 	}
 
 	private boolean isValidTarget(Entity entity, LocalPlayer self) {
-		if (entity == self || !(entity instanceof LivingEntity living) || living.isDeadOrDying()) {
-			return false;
-		}
-		if (living.isInvisible() && !invisibles.get()) {
-			return false;
-		}
-		if (living instanceof Player) {
-			return players.get();
-		}
-		if (!(living instanceof Mob)) {
-			return false;
-		}
-		return living.getType().getCategory() == MobCategory.MONSTER ? hostiles.get() : passives.get();
-	}
-
-	private static boolean isWeapon(ItemStack stack) {
-		return stack.is(ItemTags.SWORDS) || stack.is(ItemTags.AXES) || stack.is(Items.MACE) || stack.is(Items.TRIDENT);
+		return Targets.isValid(entity, self, players.get(), hostiles.get(), passives.get(), invisibles.get());
 	}
 
 	/** Vanilla only crits while falling, off the ground, out of water and not climbing. */

@@ -167,13 +167,15 @@ public class ClickGuiScreen extends Screen {
 			itemY += ITEM_HEIGHT;
 		}
 
-		// Profile row.
+		// Profile row, hidden when the window is too short to fit it under the categories.
 		int profileY = windowY + windowHeight - 62;
-		String name = minecraft != null ? minecraft.getUser().getName() : "Player";
-		Render2D.horizontalGradient(graphics, windowX + 12, profileY, 20, 20, 10, Theme.accent(), Theme.accent2());
-		VText.drawCentered(graphics, name.substring(0, 1).toUpperCase(Locale.ROOT), windowX + 22, profileY + 6, 0xFFFFFFFF, true);
-		VText.draw(graphics, VText.trim(name, SIDEBAR_WIDTH - 50, true), windowX + 38, profileY + 1, Theme.TEXT, true);
-		VText.drawScaled(graphics, "v" + VoltlizClient.version(), windowX + 38, profileY + 12, Theme.TEXT_DIM, false, 0.75f);
+		if (profileY >= itemY + 4) {
+			String name = minecraft != null ? minecraft.getUser().getName() : "Player";
+			Render2D.horizontalGradient(graphics, windowX + 12, profileY, 20, 20, 10, Theme.accent(), Theme.accent2());
+			VText.drawCentered(graphics, name.substring(0, 1).toUpperCase(Locale.ROOT), windowX + 22, profileY + 6, 0xFFFFFFFF, true);
+			VText.draw(graphics, VText.trim(name, SIDEBAR_WIDTH - 50, true), windowX + 38, profileY + 1, Theme.TEXT, true);
+			VText.drawScaled(graphics, "v" + VoltlizClient.version(), windowX + 38, profileY + 12, Theme.TEXT_DIM, false, 0.75f);
+		}
 
 		// "Edit HUD" button pinned to the bottom of the sidebar.
 		int buttonX = windowX + 10;
