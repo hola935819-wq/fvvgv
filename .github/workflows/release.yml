@@ -1,0 +1,66 @@
+name: release
+# Publishes a release whenever main carries a mod.version that has no release yet,
+# so bumping the version in stonecutter.properties.toml is all a new release needs.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+      - name: check for an existing release
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v$(sed -n 's/^mod.version = "\(.*\)"/\1/p' stonecutter.properties.toml)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" > /dev/null 2>&1; then echo "exists=true" >> "$GITHUB_OUTPUT"; fi
+      - name: validate gradle wrapper
+        if: steps.version.outputs.exists != 'true'
+        uses: gradle/actions/wrapper-validation@v6
+      - name: setup jdk
+        if: steps.version.outputs.exists != 'true'
+        uses: actions/setup-java@v5
+        with:
+          # Loom runs on 25; mods are compiled with the 21 toolchain.
+          java-version: |
+            21
+            25
+          distribution: 'microsoft'
+      - name: setup gradle
+        if: steps.version.outputs.exists != 'true'
+        uses: gradle/actions/setup-gradle@v6
+      - name: make gradle wrapper executable
+        if: steps.version.outputs.exists != 'true'
+        run: chmod +x ./gradlew
+      - name: build all versions
+        if: steps.version.outputs.exists != 'true'
+        run: ./gradlew buildAndCollect --stacktrace
+      - name: publish release
+        if: steps.version.outputs.exists != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          # One jar per Minecraft version, named so the version is obvious from the download list.
+          mkdir release
+          for dir in build/libs/*/; do
+            mc=$(basename "$dir")
+            cp "$dir"/*.jar "release/Voltliz-Client-${TAG}-MC-${mc}.jar"
+          done
+          cat > notes.md <<'EOF'
+          ## Descarga
+          Baja **solo** el .jar de tu versión de Minecraft (por ejemplo `...-MC-1.21.11.jar` para 1.21.11).
+
+          ## Instalación
+          1. Instala [Fabric Loader](https://fabricmc.net/use/installer/) para tu versión de Minecraft.
+          2. Pon en la carpeta `.minecraft/mods` el .jar de Voltliz y [Fabric API](https://modrinth.com/mod/fabric-api) para la misma versión.
+          3. Abre Minecraft con el perfil de Fabric. El Click GUI se abre con **Shift derecho**.
+          EOF
+          gh release create "$TAG" release/*.jar --title "Voltliz Client $TAG" --notes-file notes.md --target "$GITHUB_SHA"
