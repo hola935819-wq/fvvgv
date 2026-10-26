@@ -43,11 +43,6 @@ fabricApi {
     }
 }
 
-sourceSets.named("gametest") {
-    java.srcDir(rootProject.file("src/gametest/java"))
-    resources.srcDir(rootProject.file("src/gametest/resources"))
-}
-
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
