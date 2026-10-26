@@ -4,6 +4,8 @@ import dev.voltliz.client.module.Category;
 import dev.voltliz.client.module.Module;
 import dev.voltliz.client.module.Overlay;
 import dev.voltliz.client.module.combat.Targets;
+import dev.voltliz.client.render.Render2D;
+import dev.voltliz.client.render.VText;
 import dev.voltliz.client.setting.BooleanSetting;
 import dev.voltliz.client.setting.ModeSetting;
 import dev.voltliz.client.setting.NumberSetting;
@@ -18,6 +20,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -29,6 +32,7 @@ public abstract class EspModule extends Module implements Overlay {
 	protected final BooleanSetting hostiles = add(new BooleanSetting("Hostiles", true));
 	protected final BooleanSetting passives = add(new BooleanSetting("Passives", false));
 	protected final BooleanSetting invisibles = add(new BooleanSetting("Invisibles", true));
+	protected final BooleanSetting items = add(new BooleanSetting("Items", true));
 	protected final BooleanSetting ignoreTeammates = add(new BooleanSetting("Ignore Teammates", false));
 
 	protected EspModule(String name, String description) {
@@ -79,6 +83,54 @@ public abstract class EspModule extends Module implements Overlay {
 			}
 		}
 		return points;
+	}
+
+	/**
+	 * Draws the target's main hand, armor and offhand in a row centered on {@code centerX}, ending
+	 * at {@code bottom}, each with a small durability bar. Returns the row's top edge.
+	 */
+	protected float drawEquipment(GuiGraphics graphics, LivingEntity entity, float centerX, float bottom) {
+		if (!items.get()) {
+			return bottom;
+		}
+		List<ItemStack> stacks = new ArrayList<>();
+		for (ItemStack stack : Targets.equipment(entity)) {
+			if (!stack.isEmpty()) {
+				stacks.add(stack);
+			}
+		}
+		if (stacks.isEmpty()) {
+			return bottom;
+		}
+
+		float scale = 0.625f;
+		float slot = 16 * scale + 2;
+		float rowWidth = stacks.size() * slot + 4;
+		float rowHeight = 16 * scale + 6;
+		float x = centerX - rowWidth / 2;
+		float y = bottom - rowHeight;
+		Render2D.roundedRect(graphics, x, y, rowWidth, rowHeight, 4, Theme.HUD_BACKGROUND);
+
+		float itemX = x + 3;
+		for (ItemStack stack : stacks) {
+			graphics.pose().pushMatrix();
+			graphics.pose().translate(itemX, y + 2);
+			graphics.pose().scale(scale, scale);
+			graphics.renderItem(stack, 0, 0);
+			graphics.pose().popMatrix();
+
+			if (stack.isDamageableItem() && stack.getMaxDamage() > 0) {
+				float left = 1 - (float) stack.getDamageValue() / stack.getMaxDamage();
+				float barWidth = 16 * scale;
+				Render2D.rect(graphics, itemX, y + rowHeight - 3, barWidth, 1.5f, 0xA0000000);
+				Render2D.rect(graphics, itemX, y + rowHeight - 3, barWidth * left, 1.5f, healthColor(left));
+			} else if (stack.getCount() > 1) {
+				String count = String.valueOf(stack.getCount());
+				VText.drawScaled(graphics, count, itemX + 16 * scale - VText.width(count) * 0.55f, y + rowHeight - 6, Theme.TEXT, true, 0.55f);
+			}
+			itemX += slot;
+		}
+		return y;
 	}
 
 	protected static float healthFraction(LivingEntity entity) {

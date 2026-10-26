@@ -1,6 +1,7 @@
 package dev.voltliz.client.module.hud;
 
 import dev.voltliz.client.module.HudModule;
+import dev.voltliz.client.module.combat.Targets;
 import dev.voltliz.client.render.Render2D;
 import dev.voltliz.client.render.VText;
 import dev.voltliz.client.setting.BooleanSetting;
@@ -14,7 +15,6 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
@@ -149,7 +149,7 @@ public class TargetHudModule extends HudModule {
 		// Their armor and weapon.
 		if (showItems.get()) {
 			int itemX = 7;
-			for (ItemStack stack : equipment(shown)) {
+			for (ItemStack stack : Targets.equipment(shown)) {
 				if (!stack.isEmpty()) {
 					graphics.pose().pushMatrix();
 					graphics.pose().translate(itemX, 41);
@@ -173,17 +173,6 @@ public class TargetHudModule extends HudModule {
 		Render2D.circle(graphics, 7 + split, tugY + 2, 2.6f, 0xFFFFFFFF);
 
 		Render2D.setAlpha(previousAlpha);
-	}
-
-	private static ItemStack[] equipment(LivingEntity entity) {
-		return new ItemStack[] {
-				entity.getMainHandItem(),
-				entity.getItemBySlot(EquipmentSlot.HEAD),
-				entity.getItemBySlot(EquipmentSlot.CHEST),
-				entity.getItemBySlot(EquipmentSlot.LEGS),
-				entity.getItemBySlot(EquipmentSlot.FEET),
-				entity.getOffhandItem()
-		};
 	}
 
 	/** Health weighted by armor, so a full netherite player counts as tougher than a naked one. */

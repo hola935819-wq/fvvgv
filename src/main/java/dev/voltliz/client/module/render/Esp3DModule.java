@@ -36,6 +36,14 @@ public class Esp3DModule extends EspModule {
 			drawEdges(graphics, points, ColorUtil.withAlpha(top, 0x30), ColorUtil.withAlpha(bottom, 0x30), width + 2.5f);
 		}
 		drawEdges(graphics, points, top, bottom, width);
+
+		float topY = Float.MAX_VALUE;
+		float centerX = 0;
+		for (float[] point : points) {
+			topY = Math.min(topY, point[1]);
+			centerX += point[0] / points.length;
+		}
+		drawEquipment(graphics, entity, centerX, topY - 3);
 	}
 
 	private static void drawEdges(GuiGraphics graphics, float[][] points, int top, int bottom, float width) {

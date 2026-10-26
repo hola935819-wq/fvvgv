@@ -3,6 +3,7 @@ package dev.voltliz.client.module.combat;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -29,6 +30,18 @@ public final class Targets {
 			return false;
 		}
 		return living.getType().getCategory() == MobCategory.MONSTER ? hostiles : passives;
+	}
+
+	/** Main hand, the four armor pieces (head first) and offhand, in display order. */
+	public static ItemStack[] equipment(LivingEntity entity) {
+		return new ItemStack[] {
+				entity.getMainHandItem(),
+				entity.getItemBySlot(EquipmentSlot.HEAD),
+				entity.getItemBySlot(EquipmentSlot.CHEST),
+				entity.getItemBySlot(EquipmentSlot.LEGS),
+				entity.getItemBySlot(EquipmentSlot.FEET),
+				entity.getOffhandItem()
+		};
 	}
 
 	public static boolean isWeapon(ItemStack stack) {

@@ -88,6 +88,9 @@ public class Esp2DModule extends EspModule {
 			Render2D.circle(graphics, pillX + 5, pillY + pillHeight / 2, 1.6f, topColor);
 			VText.drawScaled(graphics, name, pillX + 9, pillY + 2.5f, Theme.TEXT, true, scale);
 			VText.drawScaled(graphics, health, pillX + 12 + nameWidth, pillY + 2.5f, healthColor(healthFraction(entity)), true, scale);
+			drawEquipment(graphics, entity, centerX, pillY - 2);
+		} else {
+			drawEquipment(graphics, entity, centerX, top - 3);
 		}
 		if (distance.get()) {
 			String text = Math.round(player.distanceTo(entity)) + "m";
