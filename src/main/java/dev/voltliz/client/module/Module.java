@@ -53,6 +53,11 @@ public abstract class Module {
 	protected void onDisable() {
 	}
 
+	/** Called at the start of each client tick, before vanilla handles input. */
+	public void onPreTick(Minecraft client) {
+	}
+
+	/** Called at the end of each client tick. */
 	public void onTick(Minecraft client) {
 	}
 

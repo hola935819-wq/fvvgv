@@ -1,6 +1,7 @@
 package dev.voltliz.client.module;
 
 import dev.voltliz.client.module.client.ClickGuiModule;
+import dev.voltliz.client.module.combat.TriggerBotModule;
 import dev.voltliz.client.module.hud.ArmorStatusModule;
 import dev.voltliz.client.module.hud.ClockModule;
 import dev.voltliz.client.module.hud.CoordinatesModule;
@@ -28,6 +29,8 @@ public final class ModuleManager {
 	private Set<Integer> heldKeys = new HashSet<>();
 
 	public ModuleManager() {
+		add(new TriggerBotModule());
+
 		add(new WatermarkModule());
 		add(new FpsModule());
 		add(new CpsModule());
@@ -50,6 +53,14 @@ public final class ModuleManager {
 		modules.add(module);
 		if (module instanceof HudModule hudModule) {
 			hudModules.add(hudModule);
+		}
+	}
+
+	public void onPreTick(Minecraft client) {
+		for (Module module : modules) {
+			if (module.isEnabled()) {
+				module.onPreTick(client);
+			}
 		}
 	}
 

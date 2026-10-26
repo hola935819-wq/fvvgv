@@ -1,6 +1,7 @@
 package dev.voltliz.client.module;
 
 public enum Category {
+	COMBAT("Combat"),
 	HUD("HUD"),
 	PLAYER("Player"),
 	CLIENT("Client");

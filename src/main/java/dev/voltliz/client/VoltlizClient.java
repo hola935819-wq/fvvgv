@@ -40,6 +40,7 @@ public class VoltlizClient implements ClientModInitializer {
 		KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
 		clickGuiKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.voltliz.clickgui", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, category));
 
+		ClientTickEvents.START_CLIENT_TICK.register(moduleManager::onPreTick);
 		ClientTickEvents.END_CLIENT_TICK.register(this::onEndTick);
 		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "hud"), HudRenderer::render);
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> saveConfig());
