@@ -14,7 +14,7 @@ dependencies {
     minecraft("com.mojang:minecraft:${sc.current.version}")
     loomx.applyMojangMappings()
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${sc.properties["deps.fabric_api"]}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${sc.properties.get<String>("deps.fabric_api")}")
 }
 
 loom {
@@ -38,8 +38,8 @@ java {
 
 tasks.processResources {
     val props = mapOf(
-        "version" to sc.properties["mod.version"],
-        "minecraft" to sc.properties["mod.mc_compat"]
+        "version" to sc.properties.get<String>("mod.version"),
+        "minecraft" to sc.properties.get<String>("mod.mc_compat")
     )
     for ((key, value) in props) inputs.property(key, value)
     filesMatching("fabric.mod.json") { expand(props) }
