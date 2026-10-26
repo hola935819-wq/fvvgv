@@ -129,7 +129,6 @@ public class ClickGuiScreen extends Screen {
 		// Logo and wordmark.
 		int logoX = windowX + 12;
 		int logoY = windowY + 12;
-		Render2D.shadow(graphics, logoX, logoY, 24, 24, 6, 6, 0x50, Theme.accent());
 		Icons.logo(graphics, logoX, logoY, 24);
 		VText.drawGradient(graphics, "Voltliz", logoX + 31, logoY + 2, Theme.TEXT, Theme.accent(), true);
 		VText.drawScaled(graphics, "C L I E N T", logoX + 31, logoY + 14, Theme.TEXT_DIM, false, 0.7f);
