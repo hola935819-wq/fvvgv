@@ -28,6 +28,9 @@ jobs:
           name: Voltliz-Client
           path: build/libs/
       - name: run client game test
+        env:
+          # Mesa renders on the CPU here; keep two cores free for the integrated server.
+          LP_NUM_THREADS: '2'
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb > /dev/null
           xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew runClientGameTest --stacktrace
