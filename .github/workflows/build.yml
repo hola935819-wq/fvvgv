@@ -4,6 +4,8 @@ on: [pull_request, push]
 jobs:
   build:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
       - name: checkout repository
         uses: actions/checkout@v6
@@ -35,3 +37,12 @@ jobs:
         with:
           name: Game-Test-Screenshots
           path: build/run/clientGameTest/screenshots/
+      - name: publish screenshots (temporary)
+        if: always() && github.event_name == 'push'
+        run: |
+          cd build/run/clientGameTest/screenshots
+          git init -q
+          git checkout -q -b ci-screenshots
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "Screenshots for ${GITHUB_SHA}"
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-screenshots
