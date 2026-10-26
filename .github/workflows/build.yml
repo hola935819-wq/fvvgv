@@ -36,7 +36,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -68,12 +68,3 @@ jobs:
         with:
           name: Game-Test-Screenshots-${{ matrix.mc }}
           path: versions/${{ matrix.mc }}/build/run/clientGameTest/screenshots/
-      - name: publish screenshots (temporary)
-        if: always()
-        run: |
-          cd versions/${{ matrix.mc }}/build/run/clientGameTest/screenshots
-          git init -q
-          git checkout -q -b ci-screenshots-${{ matrix.mc }}
-          git add .
-          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "Screenshots for ${GITHUB_SHA}"
-          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-screenshots-${{ matrix.mc }}
