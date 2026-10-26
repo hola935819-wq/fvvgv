@@ -1,0 +1,36 @@
+name: build
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+      - name: validate gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+      - name: setup jdk
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+      - name: make gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: build
+        run: ./gradlew build --stacktrace
+      - name: capture build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Voltliz-Client
+          path: build/libs/
+      - name: dump minecraft signatures (temporary)
+        if: always()
+        continue-on-error: true
+        run: |
+          for jar in $(find ~/.gradle/caches/fabric-loom .gradle/loom-cache -name '*.jar' 2>/dev/null | grep -i minecraft | grep -v sources); do
+            if unzip -l "$jar" | grep -q 'net/minecraft/client/MouseHandler.class'; then
+              echo "JAR: $jar"
+              javap -p -cp "$jar" net.minecraft.client.MouseHandler net.minecraft.client.input.MouseButtonEvent net.minecraft.client.input.MouseButtonInfo net.minecraft.client.input.KeyEvent com.mojang.blaze3d.platform.Window | grep -vE '^\s*(private|static) final .*;$' | head -150
+              break
+            fi
+          done

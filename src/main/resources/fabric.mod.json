@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"id": "voltliz",
+	"version": "${version}",
+	"name": "Voltliz Client",
+	"description": "Cliente de Minecraft con Click GUI y HUD personalizable.",
+	"authors": [
+		"Voltliz"
+	],
+	"license": "All-Rights-Reserved",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.voltliz.client.VoltlizClient"
+		]
+	},
+	"mixins": [
+		"voltliz.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
