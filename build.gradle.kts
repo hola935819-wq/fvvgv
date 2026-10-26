@@ -20,12 +20,32 @@ dependencies {
 loom {
     runConfigs.configureEach {
         preferGradleTask = true
-        runDirectory = rootProject.file("run")
+        if (name == "clientGameTest") {
+            // Fabric API runs its own client game tests in CI with the network synchronizer off.
+            vmArg("-Dfabric.client.gametest.disableNetworkSynchronizer=true")
+        } else {
+            runDirectory = rootProject.file("run")
+        }
     }
     @Suppress("UnstableApiUsage")
     mods {
         create("voltliz") { sourceSet(sourceSets["main"]) }
     }
+}
+
+// Client game test: boots each Minecraft version, joins a world and exercises the modules.
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "voltliz-gametest"
+        enableGameTests = false
+        eula = true
+    }
+}
+
+sourceSets.named("gametest") {
+    java.srcDir(rootProject.file("src/gametest/java"))
+    resources.srcDir(rootProject.file("src/gametest/resources"))
 }
 
 java {

@@ -30,3 +30,41 @@ jobs:
         with:
           name: Voltliz-Client
           path: build/libs/
+
+  gametest:
+    # Boots every supported version in a real client and runs the module checks.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        mc: ['1.21.6', '1.21.7', '1.21.8', '1.21.9', '1.21.10', '1.21.11']
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+      - name: setup jdk
+        uses: actions/setup-java@v5
+        with:
+          java-version: |
+            21
+            25
+          distribution: 'microsoft'
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: make gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: run client game test
+        env:
+          # Mesa renders on the CPU here; keep two cores free for the integrated server.
+          LP_NUM_THREADS: '2'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb > /dev/null
+          xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew :${{ matrix.mc }}:runClientGameTest --stacktrace
+      - name: capture test screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: Game-Test-Screenshots-${{ matrix.mc }}
+          path: versions/${{ matrix.mc }}/build/run/clientGameTest/screenshots/
