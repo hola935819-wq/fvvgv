@@ -27,7 +27,7 @@ import net.minecraft.world.phys.EntityHitResult;
  */
 public class TriggerBotModule extends Module {
 	private final ModeSetting timing = add(new ModeSetting("Timing", "Cooldown", "Cooldown", "CPS"));
-	private final NumberSetting cooldown = add(new NumberSetting("Cooldown %", 100, 50, 100, 1));
+	private final NumberSetting cooldown = add(new NumberSetting("Cooldown %", 100, 60, 100, 1));
 	private final NumberSetting cps = add(new NumberSetting("CPS", 12, 1, 20, 1));
 	private final NumberSetting reaction = add(new NumberSetting("Reaction ms", 0, 0, 300, 10));
 	private final BooleanSetting players = add(new BooleanSetting("Players", true));
@@ -80,6 +80,9 @@ public class TriggerBotModule extends Module {
 			return;
 		}
 
+		// 1.9+ cooldown: charge = ticks since the last swing / (20 / attack speed). Damage scales by
+		// 0.2 + 0.8 * charge^2, and crits, sweeps and sprint knockback need a charge above 90%.
+		// The 0.5 partial tick is what vanilla itself uses when the attack lands this tick.
 		boolean ready = timing.is("Cooldown")
 				? player.getAttackStrengthScale(0.5f) >= cooldown.get() / 100.0
 				: now - lastClick >= 1000.0 / cps.get();
