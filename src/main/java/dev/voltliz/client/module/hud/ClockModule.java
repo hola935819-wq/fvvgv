@@ -12,7 +12,7 @@ public class ClockModule extends TextHudModule {
 	private final ModeSetting format = add(new ModeSetting("Format", "24h", "24h", "12h"));
 
 	public ClockModule() {
-		super("Clock", "Shows your real-world time.", 4, 116);
+		super("Clock", "Shows your real-world time.", 4, 126);
 	}
 
 	@Override

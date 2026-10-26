@@ -10,7 +10,7 @@ public class CoordinatesModule extends TextHudModule {
 	private final BooleanSetting otherDimension = add(new BooleanSetting("Nether/Overworld", false));
 
 	public CoordinatesModule() {
-		super("Coordinates", "Shows your position in the world.", 4, 52);
+		super("Coordinates", "Shows your position in the world.", 4, 62);
 		setEnabled(true);
 	}
 

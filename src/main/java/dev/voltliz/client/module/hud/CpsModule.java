@@ -8,7 +8,7 @@ public class CpsModule extends TextHudModule {
 	private final ModeSetting mode = add(new ModeSetting("Buttons", "Both", "Both", "Left"));
 
 	public CpsModule() {
-		super("CPS", "Shows your clicks per second.", 4, 36);
+		super("CPS", "Shows your clicks per second.", 4, 46);
 		setEnabled(true);
 	}
 

@@ -5,7 +5,7 @@ import net.minecraft.client.multiplayer.ServerData;
 
 public class ServerAddressModule extends TextHudModule {
 	public ServerAddressModule() {
-		super("Server Address", "Shows the server you are playing on.", 4, 100);
+		super("Server Address", "Shows the server you are playing on.", 4, 110);
 	}
 
 	@Override

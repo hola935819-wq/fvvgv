@@ -29,7 +29,7 @@ public class KeystrokesModule extends HudModule {
 	private final float[] pressAnimations = new float[7];
 
 	public KeystrokesModule() {
-		super("Keystrokes", "Shows your movement keys and mouse buttons.", 4, 140);
+		super("Keystrokes", "Shows your movement keys and mouse buttons.", 4, 150);
 		setEnabled(true);
 	}
 

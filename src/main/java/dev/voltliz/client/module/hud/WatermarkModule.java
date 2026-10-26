@@ -34,7 +34,7 @@ public class WatermarkModule extends HudModule {
 		int padding = background.get() ? 5 : 0;
 		int logoSize = 14;
 		int titleWidth = VText.width(TITLE, true);
-		int contentWidth = logoSize + 5 + titleWidth + 3 + VText.width(suffix) + (info.isEmpty() ? 0 : 11 + VText.width(info));
+		int contentWidth = logoSize + 5 + titleWidth + 4 + VText.width(suffix) + (info.isEmpty() ? 0 : 11 + VText.width(info));
 		width = contentWidth + padding * 2 + (background.get() ? 2 : 0);
 		height = Math.max(logoSize, VText.HEIGHT) + padding * 2;
 
@@ -57,7 +57,7 @@ public class WatermarkModule extends HudModule {
 			to = ColorUtil.lerp(Theme.accent2(), Theme.accent(), t);
 		}
 		x += VText.drawGradient(graphics, TITLE, x, textY, from, to, true);
-		x += 3;
+		x += 4;
 		VText.draw(graphics, suffix, x, textY, Theme.TEXT);
 		x += VText.width(suffix);
 
