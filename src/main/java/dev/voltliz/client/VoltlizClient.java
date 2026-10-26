@@ -40,7 +40,11 @@ public class VoltlizClient implements ClientModInitializer {
 		configManager = new ConfigManager(FabricLoader.getInstance().getConfigDir().resolve(MOD_ID).resolve("config.json"));
 		configManager.load(moduleManager);
 
+		//? if >=1.21.9 {
 		KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
+		//?} else {
+		/*String category = "key.category.voltliz.main";
+		*///?}
 		clickGuiKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.voltliz.clickgui", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, category));
 
 		ClientTickEvents.START_CLIENT_TICK.register(moduleManager::onPreTick);

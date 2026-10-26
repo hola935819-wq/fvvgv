@@ -16,8 +16,8 @@ plugins {
 
 stonecutter {
     create(rootProject) {
-        // Start with two adjacent versions to validate the setup, then expand down to 1.21.6.
-        versions("1.21.10", "1.21.11")
+        // 1.21.6 is the first version with Fabric's HudElementRegistry and the current GUI renderer.
+        versions("1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10", "1.21.11")
         vcsVersion = "1.21.11"
     }
 }

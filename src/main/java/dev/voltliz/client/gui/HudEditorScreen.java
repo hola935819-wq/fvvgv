@@ -9,7 +9,9 @@ import dev.voltliz.client.util.Theme;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=1.21.9 {
 import net.minecraft.client.input.MouseButtonEvent;
+//?}
 import net.minecraft.network.chat.Component;
 
 /** Drag HUD elements around, scroll to resize them. */
@@ -130,28 +132,49 @@ public class HudEditorScreen extends Screen {
 		return null;
 	}
 
+	//? if >=1.21.9 {
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-		HudModule module = hoveredModule(event.x(), event.y());
-		if (module != null) {
-			if (event.button() == 0) {
-				dragging = module;
-				dragOffsetX = event.x() - module.getX();
-				dragOffsetY = event.y() - module.getY();
-			} else if (event.button() == 1) {
-				module.getScaleSetting().reset();
-			}
-			return true;
-		}
-		return super.mouseClicked(event, doubleClick);
+		return onMouseClicked(event.x(), event.y(), event.button()) || super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
 	public boolean mouseReleased(MouseButtonEvent event) {
+		stopDragging();
+		return super.mouseReleased(event);
+	}
+	//?} else {
+	/*@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		return onMouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		stopDragging();
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+	*///?}
+
+	private boolean onMouseClicked(double mouseX, double mouseY, int button) {
+		HudModule module = hoveredModule(mouseX, mouseY);
+		if (module == null) {
+			return false;
+		}
+		if (button == 0) {
+			dragging = module;
+			dragOffsetX = mouseX - module.getX();
+			dragOffsetY = mouseY - module.getY();
+		} else if (button == 1) {
+			module.getScaleSetting().reset();
+		}
+		return true;
+	}
+
+	private void stopDragging() {
 		dragging = null;
 		snappedX = false;
 		snappedY = false;
-		return super.mouseReleased(event);
 	}
 
 	@Override

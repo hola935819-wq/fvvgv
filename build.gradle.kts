@@ -45,7 +45,7 @@ tasks.processResources {
     filesMatching("fabric.mod.json") { expand(props) }
 }
 
-// Collects each version's mod jar into build/libs/<mc version>/ so chiseledBuild gathers them all.
+// Collects each version's mod jar into build/libs/<mc version>/; run it from the root to build every version.
 tasks.register<Copy>("buildAndCollect") {
     group = "build"
     description = "Builds the mod jar and copies it to build/libs/<minecraft version>/"

@@ -19,9 +19,11 @@ import java.util.Locale;
 import java.util.Map;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=1.21.9 {
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+//?}
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -278,12 +280,54 @@ public class ClickGuiScreen extends Screen {
 		return new int[] {(int) Math.round(width / 2f + (mouseX - width / 2f) / scale), (int) Math.round(height / 2f + (mouseY - height / 2f) / scale)};
 	}
 
+	//? if >=1.21.9 {
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-		int[] local = toLocal(event.x(), event.y());
+		return onMouseClicked(event.x(), event.y(), event.button()) || super.mouseClicked(event, doubleClick);
+	}
+
+	@Override
+	public boolean mouseReleased(MouseButtonEvent event) {
+		onMouseReleased(event.x(), event.y(), event.button());
+		return super.mouseReleased(event);
+	}
+
+	@Override
+	public boolean keyPressed(KeyEvent event) {
+		return onKeyPressed(event.key()) || super.keyPressed(event);
+	}
+
+	@Override
+	public boolean charTyped(CharacterEvent event) {
+		return onCharTyped(event.codepoint());
+	}
+	//?} else {
+	/*@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		return onMouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		onMouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		return onKeyPressed(keyCode) || super.keyPressed(keyCode, scanCode, modifiers);
+	}
+
+	@Override
+	public boolean charTyped(char codepoint, int modifiers) {
+		return onCharTyped(codepoint);
+	}
+	*///?}
+
+	private boolean onMouseClicked(double rawX, double rawY, int button) {
+		int[] local = toLocal(rawX, rawY);
 		double mouseX = local[0];
 		double mouseY = local[1];
-		int button = event.button();
 
 		if (button == 0 && RenderUtil.isInside(mouseX, mouseY, windowX + 10, windowY + windowHeight - 32, SIDEBAR_WIDTH - 20, 22)) {
 			minecraft.setScreen(new HudEditorScreen(this));
@@ -311,16 +355,14 @@ public class ClickGuiScreen extends Screen {
 				}
 			}
 		}
-		return super.mouseClicked(event, doubleClick);
+		return false;
 	}
 
-	@Override
-	public boolean mouseReleased(MouseButtonEvent event) {
-		int[] local = toLocal(event.x(), event.y());
+	private void onMouseReleased(double rawX, double rawY, int button) {
+		int[] local = toLocal(rawX, rawY);
 		for (ModuleCard card : allCards) {
-			card.mouseReleased(local[0], local[1], event.button());
+			card.mouseReleased(local[0], local[1], button);
 		}
-		return super.mouseReleased(event);
 	}
 
 	@Override
@@ -333,32 +375,29 @@ public class ClickGuiScreen extends Screen {
 		return allCards.stream().anyMatch(ModuleCard::isListening);
 	}
 
-	@Override
-	public boolean keyPressed(KeyEvent event) {
+	private boolean onKeyPressed(int key) {
 		for (ModuleCard card : visibleCards()) {
-			if (card.keyPressed(event.key())) {
+			if (card.keyPressed(key)) {
 				return true;
 			}
 		}
-		if (!search.isEmpty() && event.key() == GLFW.GLFW_KEY_BACKSPACE) {
+		if (!search.isEmpty() && key == GLFW.GLFW_KEY_BACKSPACE) {
 			search = search.substring(0, search.length() - 1);
 			scrollTarget = 0;
 			return true;
 		}
-		if (!search.isEmpty() && event.key() == GLFW.GLFW_KEY_ESCAPE) {
+		if (!search.isEmpty() && key == GLFW.GLFW_KEY_ESCAPE) {
 			search = "";
 			return true;
 		}
-		if (VoltlizClient.get().isClickGuiKey(event.key())) {
+		if (VoltlizClient.get().isClickGuiKey(key)) {
 			onClose();
 			return true;
 		}
-		return super.keyPressed(event);
+		return false;
 	}
 
-	@Override
-	public boolean charTyped(CharacterEvent event) {
-		int codepoint = event.codepoint();
+	private boolean onCharTyped(int codepoint) {
 		if (isListening() || !Character.isLetterOrDigit(codepoint) && codepoint != ' ') {
 			return false;
 		}
